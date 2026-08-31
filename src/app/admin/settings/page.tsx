@@ -30,12 +30,12 @@ export default function SettingsAdmin() {
       <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-2">
-            <Label>Tên Giáo Xứ (Hero Title)</Label>
-            <Input name="hero_title" placeholder="VD: GIÁO XỨ THIÊN HOA" defaultValue={settings['hero_title']} />
+            <label className="text-sm font-medium text-gray-700">Tên Giáo Xứ (Hero Title)</label>
+            <Input name="hero_title" placeholder="VD: GIÁO XỨ THIÊN HOA" />
           </div>
           <div className="grid gap-2">
-            <Label>Tiêu đề phụ (Hero Subtitle)</Label>
-            <Input name="hero_subtitle" placeholder="VD: Giáo Phận Buôn Ma Thuột" defaultValue={settings['hero_subtitle']} />
+            <label className="text-sm font-medium text-gray-700">Tiêu đề phụ (Hero Subtitle)</label>
+            <Input name="hero_subtitle" placeholder="VD: Giáo Phận Buôn Ma Thuột" />
           </div>
           <Button type="submit" disabled={loading}>
             {loading ? "Đang lưu..." : "Lưu thay đổi"}

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { logoutAction } from "@/app/actions";
+import { redirect } from "next/navigation";
 
 export default function AdminLayout({
   children,
@@ -33,6 +35,15 @@ export default function AdminLayout({
           <Link href="/" className="block px-4 py-2 rounded-md text-blue-600 hover:bg-blue-50 mt-8">
             ← Trở về trang chủ
           </Link>
+          <form action={async () => {
+            "use server";
+            await logoutAction();
+            redirect("/admin/login");
+          }}>
+            <button type="submit" className="block w-full text-left px-4 py-2 rounded-md text-red-600 hover:bg-red-50 mt-2">
+              Đăng xuất
+            </button>
+          </form>
         </nav>
       </aside>
       <main className="flex-1 p-8 overflow-y-auto">

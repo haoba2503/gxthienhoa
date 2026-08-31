@@ -2,6 +2,31 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
+// --- Auth ---
+export async function loginAction(formData: FormData) {
+  const user = formData.get('username');
+  const pass = formData.get('password');
+  
+  if (user === 'admin_gxthienhoa' && pass === 'S%dfRsv2ZiTpx2') {
+    const cookieStore = await cookies();
+    cookieStore.set('admin_session', 'authenticated', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    });
+    return { success: true };
+  }
+  return { success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác' };
+}
+
+export async function logoutAction() {
+  const cookieStore = await cookies();
+  cookieStore.delete('admin_session');
+}
 
 // --- Posts ---
 export async function getPosts() {
