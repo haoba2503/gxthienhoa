@@ -133,6 +133,14 @@ export default async function Home() {
         .priest-full { width: 100%; max-width: 250px; height: 400px; border-radius: 16px; object-fit: cover; margin: 0 auto 15px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .past-priests { display: none; margin-top: 30px; }
         .past-priests.active { display: grid; }
+
+        @media (max-width: 768px) {
+          .contact-grid { grid-template-columns: 1fr !important; }
+          .contact-map { height: 300px !important; }
+          .priest-current-card { flex-direction: column !important; }
+          .priest-current-img-wrap { flex: none !important; width: 100%; }
+          .priest-current-img { height: 300px !important; }
+        }
       `}} />
 
       <Navigation title={settings.hero_title} />
@@ -242,11 +250,11 @@ export default async function Home() {
             </div>
             
             {/* Nút Xem Quý Cha Đời Trước Nhỏ Gọn */}
-            <div style={{ position: 'absolute', top: 0, right: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
               <style dangerouslySetInnerHTML={{__html: `
                 .btn-past-priests { background: transparent; color: #6b7280; padding: 8px 15px; border-radius: 20px; border: 1px solid #d1d5db; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
                 .btn-past-priests:hover { color: #0f766e; border-color: #0f766e; }
-                .past-priests-list { display: none; margin-top: 40px; padding-bottom: 20px; }
+                .past-priests-list { display: none; padding-bottom: 20px; }
                 .past-priests-list.active { display: flex; }
               `}} />
               <button id="toggle-past-priests" className="btn-past-priests">
@@ -255,14 +263,14 @@ export default async function Home() {
             </div>
             
             {/* Hiển thị nổi bật Quản xứ và Phó xứ */}
-            <div className="priests-current" style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '40px' }}>
+            <div className="priests-current" style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
               {priests.filter(p => p.isCurrent).map((priest, idx) => (
-                <div key={priest.id} style={{ display: 'flex', flexDirection: idx % 2 === 0 ? 'row' : 'row-reverse', alignItems: 'center', gap: '30px', background: 'white', padding: '30px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
-                  <div style={{ flex: '0 0 350px' }}>
+                <div key={priest.id} className="priest-current-card" style={{ display: 'flex', flexDirection: idx % 2 === 0 ? 'row' : 'row-reverse', alignItems: 'center', gap: '30px', background: 'white', padding: '30px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
+                  <div className="priest-current-img-wrap" style={{ flex: '0 0 350px' }}>
                     {priest.imageUrl ? (
-                      <img src={priest.imageUrl} alt={priest.name} style={{ width: '100%', height: '450px', objectFit: 'cover', borderRadius: '16px' }} />
+                      <img src={priest.imageUrl} alt={priest.name} className="priest-current-img" style={{ width: '100%', height: '450px', objectFit: 'cover', borderRadius: '16px' }} />
                     ) : (
-                      <div style={{ width: '100%', height: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', borderRadius: '16px', fontSize: '80px', color: '#9ca3af' }}>
+                      <div className="priest-current-img" style={{ width: '100%', height: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', borderRadius: '16px', fontSize: '80px', color: '#9ca3af' }}>
                         <i className="bi bi-person-badge"></i>
                       </div>
                     )}
@@ -388,7 +396,7 @@ export default async function Home() {
               <p>Nhiệm kỳ 2024 - 2028</p>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px', maxWidth: '1000px', margin: '0 auto' }}>
+            <div className="activities-slider">
               {councilMembers.map((member: any) => (
                 <div key={member.id} style={{ background: 'white', borderRadius: '16px', padding: '25px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
                   <img src={member.imageUrl || 'https://via.placeholder.150'} alt={member.name} style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 15px', border: '3px solid #ccfbf1' }} />
