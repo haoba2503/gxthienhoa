@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  type        String   // "ANNOUNCEMENT", "NEWS", "FEATURED"
+  imageUrl    String?
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Setting {
+  key         String   @id
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Priest {
+  id          String   @id @default(cuid())
+  name        String
+  role        String?  // e.g., "Linh mục Quản xứ", "Linh mục Phó xứ"
+  period      String   // e.g., "1955 - 1960"
+  description String
+  imageUrl    String?  // Add image for Priest
+  isCurrent   Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  day         String   // e.g., "Chúa Nhật"
+  time        String   // e.g., "4:30 - 6:45 - 16:15"
+  description String
+  icon        String   // e.g., "bi-sun"
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  imageUrl    String?
+  icon        String   // e.g., "bi-music-note-beamed"
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  title       String
+  youtubeId   String   // The video ID
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Zone {
+  id           String   @id @default(cuid())
+  name         String
+  patron       String?  // Bổn mạng
+  description  String?
+  contactInfo  String?
+  membersCount Int      @default(0)
+  imageUrl     String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Organization {
+  id           String   @id @default(cuid())
+  name         String
+  patron       String?
+  description  String?
+  contactInfo  String?
+  membersCount Int      @default(0)
+  imageUrl     String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  url         String
+  type        String   // "IMAGE" | "VIDEO"
+  title       String?
+  description String?
+  date        String?
+  tags        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CouncilMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  phone       String?
+  imageUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

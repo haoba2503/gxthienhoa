@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<!-- News section + daily auto-update via GitHub Actions -->
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giáo Xứ Đại Hải</title>
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css?v=20260830a">
+    <style id="hero-critical">
+      /* SINGLE SOURCE OF TRUTH for hero LAYOUT + sound toggle.
+         Inlined so the geometry ships in the same response as the markup and can
+         never be served stale relative to it (this is what prevents the
+         "mini-box" bug). Edit hero layout HERE, not in style.css. */
+      .hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;height:100vh;height:100svh;min-height:600px;background:linear-gradient(135deg,rgba(15,118,110,.72),rgba(13,148,136,.55)),url(https://i.ytimg.com/vi/59kCnuT1m1M/maxresdefault.jpg);background-size:cover;background-position:center;}
+      .hero-video{position:absolute;top:0;right:0;bottom:0;left:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity 1s ease;}
+      .hero.video-ready .hero-video{opacity:1;}
+      /* Cover math: the double-min keeps a 16:9 box covering EVERY aspect ratio.
+         min-* deliberately use vh (largest viewport) so no seam appears when the
+         iOS toolbar collapses. scale(1.01) masks YouTube's own edge bars. */
+      .hero-video iframe,.hero-video #hero-player{position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%) scale(1.28)!important;width:100vw!important;height:56.25vw!important;min-height:100vh!important;min-width:177.7778vh!important;border:0!important;pointer-events:none!important;}
+      /* Lighter tint so the video shows clearly; a soft dark pool behind the
+         centered text keeps the title/buttons readable. */
+      .hero-overlay{position:absolute;top:0;right:0;bottom:0;left:0;z-index:1;transition:opacity .8s ease;background:linear-gradient(to bottom,rgba(0,0,0,.38) 0%,rgba(0,0,0,0) 22%),radial-gradient(ellipse 80% 55% at 50% 52%,rgba(0,0,0,.5),rgba(0,0,0,0) 68%),linear-gradient(to bottom,rgba(15,118,110,.22) 0%,rgba(13,148,136,.16) 45%,rgba(15,118,110,.45) 100%);}
+      .hero-content{position:relative;z-index:2;max-width:800px;padding:0 20px;color:#fff;transition:opacity .8s ease,visibility .8s ease;}
+      /* After a few seconds the title/buttons fade out for a clean view of the
+         video; any mouse/touch/scroll/key interaction brings them back (JS). */
+      .hero.hero-dimmed .hero-content{opacity:0;visibility:hidden;}
+      .hero.hero-dimmed .hero-overlay{opacity:.4;}
+      /* Toggle visibility depends ONLY on the [hidden] attribute (toggled by JS),
+         never on .video-ready — so it can't get stuck hidden on a slow network. */
+      .hero-sound-toggle{position:absolute;bottom:30px;right:30px;z-index:5;width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(15,118,110,.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:transform .25s ease,background .25s ease,opacity .25s ease;}
+      .hero-sound-toggle[hidden]{display:none;}
+      .hero-sound-toggle.is-loading{opacity:.55;pointer-events:none;}
+      .hero-sound-toggle.active{background:#fbbf24;border-color:#fbbf24;}
+      .hero-sound-toggle:hover{background:#fbbf24;border-color:#fbbf24;transform:scale(1.08);}
+      .hero-sound-toggle:focus-visible{outline:3px solid #fbbf24;outline-offset:3px;}
+      .hero-sound-toggle .hst-icon{width:24px;height:24px;display:block;}
+      .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+      @media (max-width:768px){.hero-sound-toggle{width:46px;height:46px;bottom:20px;right:20px;}.hero-sound-toggle .hst-icon{width:21px;height:21px;}}
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <div id="fb-root"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo">
+                <i class="bi bi-cross"></i>
+                <span class="logo-text">GIÁO XỨ ĐẠI HẢI</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Trang Chủ</a></li>
+                <li><a href="#loi-chua">Lời Chúa</a></li>
+                <li id="nav-thongbao" hidden><a href="#thong-bao">Thông Báo</a></li>
+                <li><a href="#news">Tin Tức</a></li>
+                <li><a href="#about">Giới Thiệu</a></li>
+                <li><a href="#services">Thánh Lễ</a></li>
+                <li><a href="#activities">Hoạt Động</a></li>
+                <li><a href="#gallery">Hình Ảnh</a></li>
+                <li><a href="#contact">Liên Hệ</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main>
+<section id="home" class="hero">
+        <div class="hero-video" aria-hidden="true">
+            <div id="hero-player"></div>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="hero-eyebrow">Giáo Phận Cần Thơ</p>
+            <h1>GIÁO XỨ ĐẠI HẢI</h1>
+            <p class="hero-verse">"Trên đá này, Thầy sẽ xây Hội Thánh của Thầy" - Mt 16:18</p>
+            <div class="hero-buttons">
+                <a href="#services" class="btn btn-primary">Tham Dự Thánh Lễ</a>
+                <a href="#about" class="btn btn-secondary">Tìm Hiểu Thêm</a>
+            </div>
+        </div>
+        <button class="hero-sound-toggle is-loading" id="hero-sound-toggle" type="button"
+                aria-label="Bật âm thanh video" aria-pressed="false"
+                title="Bật/Tắt âm thanh" hidden>
+            <svg class="hst-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3z"></path>
+                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 8l5 8M21 8l-5 8"></path>
+            </svg>
+            <span class="sr-only">Bật/Tắt âm thanh</span>
+        </button>
+    </section>
+
+    <!-- Parish Announcements (Google Sheet) -->
+    <section id="thong-bao" class="announce-section" hidden>
+        <div class="container">
+            <div class="section-header">
+                <h2>Thông Báo Giáo Xứ</h2>
+                <p>Tin tức và thông báo từ Giáo Xứ Đại Hải</p>
+            </div>
+            <div id="announce-list" class="announce-list"></div>
+        </div>
+    </section>
+
+    <!-- Daily Word of God / Mass readings -->
+    <section id="loi-chua" class="liturgy-section">
+        <div class="container">
+            <div class="section-header light">
+                <h2>Lời Chúa Hôm Nay</h2>
+                <p id="liturgy-day">Đang tải…</p>
+            </div>
+            <div id="liturgy-content" class="liturgy-content">
+                <p class="liturgy-status">Đang tải Lời Chúa hôm nay…</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Article -->
+    <section id="bai-viet" class="featured-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Bài Viết Nổi Bật</h2>
+                <p>Sự kiện và phóng sự về Giáo Xứ Đại Hải</p>
+            </div>
+            <article class="featured-article">
+                <figure class="featured-figure is-contain">
+                    <img src="images/thanh-le-ta-on-hong-an-linh-muc-poster.jpg"
+                         alt="Thánh lễ Tạ ơn Hồng ân Linh mục — Tân Linh mục Giuse Nguyễn Khải Hoàn, O.P. — 9g00, ngày 17.08.2026, tại Giáo xứ Đại Hải"
+                         loading="lazy"
+                         onerror="this.closest('.featured-figure').style.display='none'">
+                </figure>
+                <div class="featured-body">
+                    <h3 class="featured-title">BIỂN RỘNG TÌNH THƯƠNG — THÁNH LỄ TẠ ƠN CỦA TÂN LINH MỤC GIUSE NGUYỄN KHẢI HOÀN, O.P.</h3>
+                    <p class="featured-subtitle">Giáo xứ Đại Hải — thứ Hai, ngày 17 tháng 8 năm 2026</p>
+                    <p>Sáng thứ Hai ngày 17 tháng 8 năm 2026, Giáo xứ Đại Hải đã sống trọn một ngày hồng phúc: người con của họ đạo — Tân Linh mục Giuse Nguyễn Khải Hoàn, O.P. — trở về mái nhà đức tin nơi hạt giống ơn gọi của mình được ươm mầm, để cùng cộng đoàn hiệp dâng Thánh lễ Tạ ơn hồng ân linh mục. Từ tám giờ sáng, khuôn viên giáo xứ đã rộn ràng đón khách; đúng giờ lễ, đoàn rước tiến vào thánh đường trong tiếng hội kèn — bình hương, thánh giá nến cao, sách Thánh, rồi gia đình, quý Tu sĩ, quý Cha đồng tế, và sau cùng là Tân Linh mục. Thánh đường hôm ấy chật kín mà ấm áp lạ thường: quý Cha trong Tỉnh Dòng Đa Minh Việt Nam và Giáo phận Cần Thơ về đồng tế đông đảo, cùng quý Tu sĩ nam nữ, thân nhân, ân nhân và bà con xứ đạo — những người đã dõi theo cha Giuse từ thuở còn là cậu bé giúp lễ.</p>
+                    <p>“Mỗi cuộc đời là một hành trình được dệt nên từ ân tình Thiên Chúa. Ơn gọi linh mục cũng thế: không phải là thành quả của con người, nhưng trước hết là một hồng ân phát xuất từ tình yêu nhưng không của Thiên Chúa” — lời dẫn nhập lễ đã gói trọn ý nghĩa của ngày trở về. Mở đầu Thánh lễ, cha Giuse mượn lời Thánh vịnh — “Hỡi những ai kính sợ Chúa Trời, đến mà nghe tôi kể việc Chúa đã làm để giúp tôi” (x. Tv 66,16) — và lời Magnificat của Đức Maria để ngợi khen tình thương Thiên Chúa, Đấng đã yêu thương chọn gọi mình qua Mẹ Hội Thánh. Ngài dâng Thánh lễ để tạ ơn hồng ân linh mục lãnh nhận ngày 04.08, và cả hồng ân Tuyên khấn Trọng thể của người em — thầy Tôma Lê Dương Thành Trí — ngày 15.08 vừa qua; đồng thời xin ơn bình an cho Tỉnh Dòng, cho giáo xứ và cho đại gia đình.</p>
+                    <p>Đầu lễ, Tân Linh mục giới thiệu với cộng đoàn quý Cha về hiệp dâng Thánh lễ: hai người anh em cùng lớp chịu chức — cha Giuse Hiếu và cha Giuse Quý — ngồi sát bên; cha Vinh Sơn Phạm Xuân Hưng, Bề trên Tu viện thánh Giuse; cha Phêrô Trần Văn Thơ, Bề trên Tu xá Cần Thơ, cùng quý Cha trong Tỉnh Dòng; và phía bên kia là cha sở Phêrô Chu Quang Trịnh, cha Quản hạt Phêrô Trương Minh Hải, cha nguyên chánh xứ Giuse Nguyễn Hữu Cường và cha Giuse Bùi Chí Cường, Chưởng ấn Tòa Giám mục. Tiếp đó, cha Bề trên Tu xá Tôma Aquinô Cần Thơ công bố đặc ân từ Sổ bộ Ân xá (số 27): Ơn Toàn Xá được ban cho các tín hữu sốt sắng tham dự Thánh lễ mở tay, với các điều kiện thường lệ — xưng tội, rước lễ và cầu nguyện theo ý Đức Giáo Hoàng.</p>
+                    <figure class="featured-video">
+                        <div class="featured-video-frame">
+                            <iframe src="https://www.youtube-nocookie.com/embed/uRIFfcE6gtE"
+                                    title="Thánh lễ Tạ ơn Cha Giuse Nguyễn Khải Hoàn, O.P. — Giáo xứ Đại Hải"
+                                    loading="lazy" allowfullscreen
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                        </div>
+                        <figcaption>Trọn vẹn Thánh lễ Tạ ơn tại Nhà thờ Giáo xứ Đại Hải, ngày 17.8.2026 — từ lúc đón tiếp quý khách và thân nhân, Thánh lễ, lời tri ân của cha Giuse, đến tiệc mừng sau lễ.</figcaption>
+                    </figure>
+                    <details class="featured-more">
+                        <summary>Đọc tiếp</summary>
+                        <figure class="featured-inline-figure">
+                            <img src="images/cham-ngon-o-lai-trong-loi.jpg"
+                                 alt="Châm ngôn linh mục của Tân Linh mục Giuse Nguyễn Khải Hoàn, O.P.: Ở lại trong Lời (x. Ga 15,1-11)"
+                                 loading="lazy"
+                                 onerror="this.closest('.featured-inline-figure').style.display='none'">
+                            <figcaption>Châm ngôn linh mục: “Ở lại trong Lời” (x. Ga 15,1-11).</figcaption>
+                        </figure>
+                        <p>Phụng vụ Lời Chúa hôm ấy như được viết riêng cho ngày tạ ơn: ngôn sứ Giêrêmia thuật lại tiếng gọi từ thuở “trước khi cho ngươi lọt lòng mẹ, Ta đã thánh hóa ngươi” — nhắc rằng mọi ơn gọi đều bắt nguồn từ sáng kiến yêu thương của Thiên Chúa; và thánh Phaolô với hình ảnh kho tàng Tin Mừng “chứa đựng trong những bình sành”, để quyền năng Chúa được tỏ hiện nơi những con người yếu đuối. Cha Vinh Sơn Phạm Xuân Hưng — người đồng hành với cha Giuse từ những ngày đầu tìm hiểu Dòng — đã ưu ái nhận lời chia sẻ Tin Mừng. Trong Thánh lễ, cha Giuse cũng tưởng nhớ và cầu nguyện cho các linh hồn: tổ tiên ông bà nội ngoại Máccô, Mátta, Đôminicô và Maria; chú Giuse Đình Hợi — vị đỡ đầu ngày rửa tội; Sơ Angelo — vị bảo trợ của anh em ngài; cùng quý Cha, quý Dì đã phục vụ tại Đại Hải và bà con trong giáo xứ đã qua đời.</p>
+                        <p>Có những khoảnh khắc khiến cả nhà thờ lặng đi: khi Tân Linh mục tiến đến trước ông cố bà cố, đón nhận lễ vật bánh rượu từ chính đôi tay cha mẹ; khi ngài quỳ trước bàn thờ giữa lời ca “Đuốc Sáng Tâm Linh” cộng đoàn hát thay lời kinh cầu cho các Tân Linh mục; và nhất là những phút cuối lễ — sau lời chúc mừng của ông Chủ tịch Hội đồng Mục vụ — khi ngài cất lời tri ân bằng một giọng nói nghẹn ngào mà ấm áp, khiến nhiều khóe mắt trong nhà thờ cũng đỏ hoe theo.</p>
+                        <p>Hành trình dẫn đến ngày hồng phúc ấy được kể lại thật giản dị trong phần tiểu sử đầu lễ. Cha Giuse sinh năm 1993, là con út trong gia đình ba người con, “kết nên từ lời cầu nguyện của ông cố Antôn Nguyễn Hữu Văn và bà cố Maria Nguyễn Thị Lý trong suốt hai mươi năm son sẻ”. Ơn gọi được ươm mầm từ những buổi sáng tinh sương cùng mẹ và anh chị đến nhà thờ; lớn lên trong nhóm giúp lễ, hội Con Đức Mẹ, nhóm Tìm hiểu ơn gọi, những năm đánh đàn cho ca đoàn và làm giáo lý viên – huynh trưởng. Biến cố cha Giacôbê Vũ Thế Hanh, O.P. cùng các bạn tử nạn tại Thái Lan tháng 6 năm 2014 đã khơi dậy nơi chàng sinh viên một niềm say mến lạ kỳ với linh đạo Đa Minh. Tháng 8 năm 2015, vừa tốt nghiệp đại học, cậu Giuse gõ cửa Thỉnh viện Tam Hà; tuyên khấn lần đầu ngày 13.8.2018, những năm triết học và thần học tại Tu viện Mân Côi Gò Vấp, một năm thực tập tại Giáo xứ Kim Bịch – Hải Dương, tuyên khấn trọng thể ngày 15.8.2022, lãnh chức Phó tế ngày 10.1.2026 — và ngày 04.8.2026, được Đức cha Tôma Vũ Đình Hiệu truyền chức linh mục tại Thánh đường Đa Minh – Ba Chuông.</p>
+                        <p>Trong lời đáp từ, cha Giuse gửi lời tri ân đến “ba Đại Gia đình” của đời mình. Trước hết là Gia đình Tỉnh Dòng Đa Minh Việt Nam, với ba cộng đoàn đã cưu mang ngài: Tu viện thánh Giuse — Trụ sở Tỉnh Dòng, nơi ngài vừa được bổ nhiệm; Tu viện Rất thánh Mân Côi, mái nhà của suốt giai đoạn đào tạo; và Tu xá Cần Thơ, cộng đoàn rất gần nhà. “Dẫu rằng hành trình đã qua có những lúc thăng trầm, con cảm nghiệm được rằng chính nơi đây, trong lòng Tỉnh Dòng, con đã được nuôi dưỡng bằng LỜI, được huấn luyện trong kỷ luật tu trì, và trên hết, được dạy cho biết yêu mến Chân Lý để chiêm niệm, rồi trao ban cho người khác hoa trái điều mình đã chiêm niệm.” Ngài ghi ơn quý cha giáo Giuse Ngô Sĩ Đình, Giuse Nguyễn Hữu Nghị và Phêrô Nguyễn Thế Truyền — những người đã truyền cho ngài ngọn lửa đam mê học hành và suy tư — và nguyện xin Chúa chúc lành cho Tỉnh Dòng, “để đời sống và lời giảng thuyết của anh em luôn có khả năng thu hút những ơn gọi mới”.</p>
+                        <p>Với quý Cha trong Giáo hạt và Giáo phận Cần Thơ, cha Giuse bày tỏ lòng biết ơn vì tình thương mến dành cho gia đình mà quý Cha đã hiện diện thật đông: “Đó quả thực là dấu chỉ cho thấy sự hiệp thông tuyệt vời trong chức linh mục, và cũng là dấu chỉ thật chắc chắn về sự yêu thương và đồng hành của quý Cha dành cho tất cả những người con Đại Hải xa xứ.”</p>
+                        <p>Rồi đến Gia đình Giáo xứ Đại Hải — nơi cha Giuse dành những lời khiến cả cộng đoàn xúc động: “Đại Hải nghĩa là Biển Lớn, và con tin rằng mỗi bà con Đại Hải giờ đây sẽ còn thật tự hào hơn nữa khi kể lại cho con cháu mình rằng, Đại Hải còn có nghĩa là Biển Rộng Tình Thương — một biển tình thương đã nuôi nấng, gìn giữ, vun trồng và kiện toàn ơn gọi của biết bao thế hệ linh mục và tu sĩ nam nữ; một biển tình thương chan chứa như vòng tay luôn dang rộng để ôm ấp từng con dân Đại Hải, dẫu xa xôi muôn trùng.” Ngài kể: ngay từ những ngày tên mình được rao trong giáo xứ, ngài đã nhận được biết bao lời động viên và hiệp thông cầu nguyện của bà con. Với cha sở Phêrô — vị linh mục từng chỉ huy dàn hợp xướng trong Đại lễ Tuyên phong Chân phước cha Trương Bửu Diệp ngày 02.7 — ngài kính chúc: “Cha sẽ mãi là khí cụ trong tay Vị Nhạc trưởng Tối cao là Thiên Chúa, để qua cha, Thiên Chúa tiếp tục viết nên những bản trường ca về Biển Rộng Tình Thương cho từng con dân xứ đạo Đại Hải.” Ngài hết lòng tri ân cha phó, quý Dì, quý chức Ban hành giáo cùng các hội đoàn — ca đoàn, ban kèn, ban trật tự, ban giữ xe, quý sơ và các anh chị cắm hoa — đã chung tay cho ngày lễ được trang trọng; và nhắn nhủ các em Thiếu Nhi Thánh Thể, hội Con Đức Mẹ, nhóm Giúp lễ, nhóm Tìm hiểu ơn gọi: những hội đoàn ấy chính là vườn ươm ơn gọi cho Hội Thánh.</p>
+                        <p>Với đại gia đình huyết tộc nội ngoại cùng quý ân nhân, bằng hữu xa gần, cha Giuse nói bằng hình ảnh của người gieo giống: “Khi một hạt giống ơn gọi được nảy mầm, nó cần một mảnh đất đủ màu mỡ để bén rễ sâu và phát triển mạnh mẽ — đó quả thực là truyền thống tốt đẹp của đại gia đình chúng ta. Con cảm nhận được niềm vui, hạnh phúc và sự hân hoan trong từng khóe mắt của mỗi người.” Từ những ngày đầu chuẩn bị Thánh lễ, cha mẹ ngài đã nhận được sự hỗ trợ của biết bao người — “điều đó càng cho thấy hồng ân linh mục mà con lãnh nhận hôm nay được kết dệt nên từ tình yêu thương của biết bao người.”</p>
+                        <p>Rồi đến giây phút cả nhà thờ nín lặng — đôi lời với cha mẹ. “Cha mẹ kính yêu, 56 năm trước, khi bước vào hành trình đời sống hôn nhân, cha mẹ đâu thể ngờ những truân chuyên của sự son sẻ trong suốt gần hai mươi năm sẽ đến. Cha mẹ thường cầu xin Chúa nhỏ xuống cho cha mẹ một giọt thôi, cha mẹ sẽ dâng cho Chúa hết. Ấy vậy mà tình thương Chúa vượt quá những gì gia đình mình có thể ước mong.” Ngài nhắc đến những tấm áo lễ mẹ may cho hai anh em thuở bé — hôm nay được cha phó Phêrô trang trí trong khuôn viên giáo xứ — “tấm áo ấy giờ đây được thay bằng lễ phục mà Mẹ Hội Thánh mặc trên mình con”; nhắc đến “đôi tay hằn chai sạn vì những vết hàn sắt của cha” và “đôi tay gầy guộc của mẹ, cõng nắng cõng mưa lặn lội quanh bờ sông, quanh ruộng vườn để mưu sinh” — tất cả hy sinh, lao nhọc và hy vọng ấy đã kết thành lễ vật dâng lên Thiên Chúa. Ngài nguyện xin Chúa tiếp tục quan phòng cho cha mẹ qua gia đình anh Khải, chị Linh, qua bà con lối xóm và đại gia đình; và hứa một điều đơn sơ mà lớn lao: “Để đền đáp ân sâu nghĩa nặng của mẹ cha, con nguyện sẽ luôn nhớ đến cha mẹ trong những thánh lễ con dâng.”</p>
+                        <p>Cha Giuse kính tặng cha mẹ hai kỷ vật của ngày truyền chức. Chiếc khăn lau dầu thánh trên đôi tay tân linh mục được trao cho bà cố — theo truyền thống xa xưa, bà sẽ giữ như báu vật, và ngày bà ra trước Tòa Chúa, chiếc khăn được đặt trong tay bà với lời thưa: “Lạy Chúa, con đã trao cho Chúa người con mà Chúa ban cho con để trở thành linh mục của Chúa. Xin thương xót con.” Còn dây các phép của những ngày đầu thi hành tác vụ được trao cho ông cố — người đã dạy cho tân linh mục những bài học đầu tiên về công lý và lòng thương xót — với cùng một lời thưa ấy trong ngày ông về với Chúa.</p>
+                        <p>Thánh lễ khép lại với Phép lành Tòa Thánh dành cho Tân Linh mục và phép lành đầu tay ngài trao cho cộng đoàn. Sau đó, quý Cha, quý Tu sĩ, thân nhân, ân nhân và bà con xứ đạo cùng nán lại chung vui trong bữa tiệc mừng ấm cúng nơi khuôn viên giáo xứ — nơi niềm vui của một ơn gọi được chia đều cho tất cả những ai đã góp phần làm nên ơn gọi ấy. Giữa bầu khí thân tình, cha Giuse và người em — thầy Tôma Lê Dương Thành Trí — đã cùng cất lên ca khúc “Cảm Mến Ân Tình”, như một lời tạ ơn sau cùng dâng lên Thiên Chúa và gửi đến mọi tấm lòng đã âm thầm đồng hành với hai anh em trên hành trình dâng hiến.</p>
+                        <p>Ngày hồng phúc đã qua, nhưng lời nguyện xin vẫn tiếp tục: xin cộng đoàn thương nhớ đến cha Giuse trong lời cầu nguyện mỗi ngày, để suốt đời linh mục, ngài luôn trung thành “ở lại trong Lời” — như chính châm ngôn ngài đã chọn — và trở nên người giảng thuyết nhiệt thành của Tin Mừng cứu độ. Mời cộng đoàn xem lại trọn Thánh lễ trong video trên đây, và xem lại trọn hành trình ơn gọi của cha tại trang khaihoan.giaoxudaihai.com.</p>
+                        <figure class="featured-video">
+                            <div class="featured-video-frame">
+                                <iframe src="https://www.youtube-nocookie.com/embed/ZJ6-bjdYt70"
+                                        title="Thánh lễ Truyền chức Linh mục Dòng Đa Minh - 04.08.2026"
+                                        loading="lazy" allowfullscreen
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                            </div>
+                            <figcaption>Trọn vẹn Thánh lễ Truyền chức Linh mục Dòng Đa Minh, 04/08/2026, do Đức cha Tôma Aquinô Vũ Đình Hiệu chủ sự — Kênh Đa Minh - Ba Chuông.</figcaption>
+                        </figure>
+                        <figure class="featured-inline-figure">
+                            <img src="images/y-nghia-bieu-tuong-tan-linh-muc.jpg"
+                                 alt="Ý nghĩa của biểu tượng trên lễ phục Tân Linh mục"
+                                 loading="lazy"
+                                 onerror="this.closest('.featured-inline-figure').style.display='none'">
+                            <figcaption>Ý nghĩa của biểu tượng trên lễ phục Tân Linh mục</figcaption>
+                        </figure>
+                        <figure class="featured-video">
+                            <div class="featured-video-frame">
+                                <iframe src="https://www.youtube-nocookie.com/embed/LrnPyf6M1k8"
+                                        title="Giới thiệu tiến chức Linh mục 2026 — Đa Minh Việt Nam"
+                                        loading="lazy" allowfullscreen
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                            </div>
+                            <figcaption>Video giới thiệu các tiến chức Linh mục 2026 — Ban Truyền thông Đa Minh Việt Nam.</figcaption>
+                        </figure>
+                        <p class="featured-signoff"><em>Giáo xứ Đại Hải</em></p>
+                    </details>
+                    <a class="featured-source" href="https://giaoxudaihai.com/" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-globe2"></i> Nguồn: Giáo xứ Đại Hải (giaoxudaihai.com)
+                    </a>
+                </div>
+            </article>
+            <!-- Mục lục các bài đã đăng: baked list renders instantly;
+                 featured-archive.json refreshes it. When a new article goes
+                 up, the one it replaces is added here (fetch-featured.js does
+                 this automatically for the weekly swaps). -->
+            <div class="featured-archive" id="featured-archive">
+                <h3><i class="bi bi-journal-text"></i> Các bài viết trước</h3>
+                <ul id="featured-archive-list">
+                    <li>
+                        <a href="https://daminhvn.net/hiep-thong/tinh-dong/gioi-thieu-cac-tien-chuc-linh-muc-2026.html" target="_blank" rel="noopener noreferrer">Thánh lễ Truyền chức Linh mục Tỉnh Dòng Đa Minh Việt Nam 2026</a>
+                        <span class="featured-archive-meta">28/7/2026 — Tỉnh Dòng Đa Minh Việt Nam</span>
+                    </li>
+                    <li>
+                        <a href="https://gpcantho.com/bao-ve-su-song-loi-moi-goi-cua-duc-thanh-cha-trong-mot-the-gioi-con-nhieu-de-doa-doi-voi-su-song/" target="_blank" rel="noopener noreferrer">Bảo vệ sự sống – lời mời gọi của Đức Thánh Cha trong một thế giới còn nhiều đe dọa đối với sự sống</a>
+                        <span class="featured-archive-meta">17/7/2026 — Giáo Phận Cần Thơ</span>
+                    </li>
+                    <li>
+                        <a href="https://gpcantho.com/le-tuyen-phong-chan-phuoc-cho-cha-phanxico-xavie-truong-buu-diep/" target="_blank" rel="noopener noreferrer">Lễ Tuyên phong Chân phước cho Cha Phanxicô Xaviê Trương Bửu Diệp</a>
+                        <span class="featured-archive-meta">13/7/2026 — Giáo Phận Cần Thơ</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Daily Catholic News -->
+    <section id="news" class="news-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Tin Tức Công Giáo</h2>
+                <p>Tin tức Giáo Hội được cập nhật hằng ngày từ các nguồn chính thức</p>
+            </div>
+            <div id="news-list" class="news-list">
+                <p class="news-status">Đang tải tin tức...</p>
+            </div>
+            <p id="news-updated" class="news-updated"></p>
+            <div class="news-sources-note">
+                <i class="bi bi-shield-check"></i>
+                <span>Nguồn chính thức: Giáo Phận Cần Thơ &middot; Vatican News (Tiếng Việt)</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Facebook feed: Giáo Phận Cần Thơ -->
+    <section id="fb-cantho" class="fb-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Facebook Giáo Phận Cần Thơ</h2>
+                <p>Bài viết mới nhất từ trang Facebook chính thức của Giáo Phận Cần Thơ</p>
+            </div>
+            <div class="fb-embed-wrap">
+                <div class="fb-intro">
+                    <i class="bi bi-facebook fb-intro-icon"></i>
+                    <h3>Kết nối với Giáo Phận Cần Thơ</h3>
+                    <p>Theo dõi trang Facebook chính thức của Giáo Phận Cần Thơ để cập nhật tin tức, hình ảnh và các hoạt động mới nhất của Giáo phận và Giáo Hội.</p>
+                    <a class="btn fb-intro-btn" href="https://www.facebook.com/gpcantho" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-facebook"></i> Xem trang Facebook
+                    </a>
+                </div>
+                <div class="fb-feed">
+                    <div class="fb-page"
+                         data-href="https://www.facebook.com/gpcantho"
+                         data-tabs="timeline"
+                         data-width="500"
+                         data-height="740"
+                         data-small-header="false"
+                         data-adapt-container-width="true"
+                         data-hide-cover="false"
+                         data-show-facepile="true">
+                        <blockquote cite="https://www.facebook.com/gpcantho" class="fb-xfbml-parse-ignore">
+                            <a href="https://www.facebook.com/gpcantho" target="_blank" rel="noopener noreferrer">Giáo Phận Cần Thơ trên Facebook</a>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section id="video" class="video-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Video Giáo Xứ</h2>
+                <p>Xem các video về sinh hoạt và thánh lễ của giáo xứ</p>
+            </div>
+            <div class="video-grid">
+                <div class="video-item">
+                    <div class="video-wrapper">
+                        <iframe
+                            src="https://www.youtube.com/embed/Je9lyNJcjQg?rel=0&modestbranding=1"
+                            title="Giới Thiệu Giáo Xứ và 70 Năm Thành Lập Họ Đạo"
+                            loading="lazy"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <h3 class="video-title">Giới Thiệu Giáo Xứ và 70 Năm Thành Lập Họ Đạo</h3>
+                </div>
+                <div class="video-item">
+                    <div class="video-wrapper">
+                        <iframe
+                            src="https://www.youtube.com/embed/59kCnuT1m1M?rel=0&modestbranding=1"
+                            title="Quá Trình Trùng Tu"
+                            loading="lazy"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <h3 class="video-title">Quá Trình Trùng Tu</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Lịch Sử Giáo Xứ</h2>
+                <p>70 năm xây dựng và phát triển (1955 - 2025)</p>
+            </div>
+            <p class="about-intro">Ngày 12.7.1955, Cha Đa Minh Trần Quang Huy cùng 40 xe chở đồng bào từ các trại tạm cư miền Bắc đã đến vùng đất Cống Đôi lập nghiệp và thành lập Họ Đạo Đại Hải, thuộc Giáo Phận Cần Thơ. Trải qua 70 năm đồng hành cùng Chúa Kitô, qua bao thăng trầm và thử thách, cộng đoàn giáo dân Đại Hải vẫn luôn kiên vững đức tin, cùng nhau cầu nguyện và sống trong tình yêu thương của Thiên Chúa. Bổn mạng Giáo Xứ: Đức Mẹ Mân Côi.</p>
+            <div class="about-grid">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <h3>Ngày Thành Lập</h3>
+                    <p>Ngày 12.7.1955 - Cha Đa Minh Trần Quang Huy cùng 40 xe đồng bào di cư từ miền Bắc đến vùng đất Cống Đôi lập nghiệp và thành lập Họ Đạo.</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <h3>Nguồn Gốc</h3>
+                    <p>Giáo dân từ các xứ đạo Ngọc Lý, Thái An, Ô Mễ, Ngọc Trại, Báo Đáp, Đông Lâm, Cựu Viên và Bạch Long (Giáo phận Hải Phòng).</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="bi bi-star"></i>
+                    </div>
+                    <h3>Bổn Mạng</h3>
+                    <p>Đức Mẹ Mân Côi - Mừng kính vào tháng 10 hàng năm, là dịp để cộng đoàn cùng nhau tạ ơn và cầu nguyện.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parish Priests Section -->
+    <section class="priests-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Các Cha Xứ Qua Các Thời Kỳ</h2>
+                <p>Tri ân các mục tử đã dẫn dắt đoàn chiên</p>
+            </div>
+            <div class="priests-timeline">
+                <div class="priest-card">
+                    <div class="priest-years">1955 - 1960</div>
+                    <h3>Cha Đa Minh Trần Quang Huy</h3>
+                    <p>Cha sáng lập Giáo Xứ Đại Hải. Ngài đã xây dựng nhà thờ đầu tiên và quy tụ giáo dân từ miền Bắc. Ngài được Chúa gọi về Ngày 11.3.1960.</p>
+                </div>
+                <div class="priest-card">
+                    <div class="priest-years">1961 - 1974</div>
+                    <h3>Cha Giuse Đào Huy Chung</h3>
+                    <p>Tiếp tục công cuộc xây dựng và phát triển giáo xứ trong thời kỳ khó khăn của đất nước.</p>
+                </div>
+                <div class="priest-card">
+                    <div class="priest-years">1974 - 1981</div>
+                    <h3>Cha Giuse Trần Quang Vượng</h3>
+                    <p>Chăm sóc đoàn chiên trong giai đoạn chuyển giao của đất nước.</p>
+                </div>
+                <div class="priest-card">
+                    <div class="priest-years">1981 - 2002</div>
+                    <h3>Cha Giuse Nguyễn Hữu Cường</h3>
+                    <p>Hơn 20 năm trông coi giáo xứ, ngài đặc biệt quan tâm đến giáo dục và Thiếu Nhi Thánh Thể. Ngài đã sửa chữa nhà thờ xuống cấp trong thời kỳ bao cấp khó khăn.</p>
+                </div>
+                <div class="priest-card">
+                    <div class="priest-years">2002 - 2018</div>
+                    <h3>Cha Phaolô Võ Văn Nam</h3>
+                    <p>Ngài đã xây dựng lại ngôi nhà thờ Đại Hải mới khang trang. Ngài được Chúa gọi về Ngày 18.3.2023.</p>
+                </div>
+                <div class="priest-card current">
+                    <div class="priest-years">2018 - Nay</div>
+                    <h3>Cha Phêrô Chu Quang Trịnh</h3>
+                    <p>Cha sở hiện tại. Ngài đã cho trùng tu đại tu nhà thờ (2024), xây đài Đức Mẹ Ban Ơn và tiếp tục dẫn dắt cộng đoàn trong đức tin.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Times -->
+    <section id="services" class="services-section">
+        <div class="container">
+            <div class="section-header light">
+                <h2>Giờ Thánh Lễ</h2>
+                <p>Cùng nhau thờ phượng và hiệp thông</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="bi bi-sun"></i>
+                    </div>
+                    <h3>Chúa Nhật</h3>
+                    <p class="time">4:30 - 6:45 - 16:15</p>
+                    <p>Thánh lễ trọng thể với bài giảng sâu sắc và thánh ca trang nghiêm.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="bi bi-moon-stars"></i>
+                    </div>
+                    <h3>Thứ Bảy</h3>
+                    <p class="time">16:15</p>
+                    <p>Thánh lễ chiều thứ Bảy, chuẩn bị tâm hồn đón Chúa Nhật.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="bi bi-calendar-week"></i>
+                    </div>
+                    <h3>Ngày Thường</h3>
+                    <p class="time">4:30 - 17:00</p>
+                    <p>Thánh lễ sáng và chiều hàng ngày để cầu nguyện và kết nối với Chúa.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                    <h3>Chầu Thánh Thể</h3>
+                    <p class="time">Thứ Năm Đầu Tháng</p>
+                    <p>Giờ chầu Thánh Thể, suy niệm và cầu nguyện trước Chúa Giêsu Thánh Thể.</p>
+                </div>
+            </div>
+
+            <!-- Important Feast Days -->
+            <div class="feast-days-section">
+                <div class="feast-days-header">
+                    <h3>Các Ngày Lễ Trọng Trong Năm</h3>
+                </div>
+                <div id="feast-days-list" class="feast-days-list">
+                    <p class="loading-text">Đang tải dữ liệu...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Activities Section -->
+    <section id="activities" class="activities-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Hoạt Động Giáo Xứ</h2>
+                <p>Tham gia và cùng nhau phục vụ</p>
+            </div>
+            <div class="activities-grid">
+                <div class="activity-card">
+                    <div class="activity-image" style="background-image: url('images/activity-worship.jpg');">
+                        <div class="activity-placeholder">
+                            <i class="bi bi-music-note-beamed"></i>
+                        </div>
+                    </div>
+                    <div class="activity-content">
+                        <h3>Ca Đoàn</h3>
+                        <p>Tham gia ca đoàn, ban nhạc hoặc đội âm thanh. Dùng tài năng âm nhạc để tôn vinh Chúa.</p>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-image" style="background-image: url('images/activity-outreach.jpg');">
+                        <div class="activity-placeholder">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                        </div>
+                    </div>
+                    <div class="activity-content">
+                        <h3>Cầu Nguyện Taizé</h3>
+                        <p>Cầu nguyện thinh lặng với những bài hát ngắn, giúp tâm hồn gặp gỡ Chúa trong yên bình.</p>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-image" style="background-image: url('images/activity-kids.jpg');">
+                        <div class="activity-placeholder">
+                            <i class="bi bi-emoji-smile"></i>
+                        </div>
+                    </div>
+                    <div class="activity-content">
+                        <h3>Thiếu Nhi Thánh Thể</h3>
+                        <p>Chương trình giáo dục đức tin cho thiếu nhi với các hoạt động vui nhộn và ý nghĩa.</p>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-image" style="background-image: url('images/activity-groups.jpg');">
+                        <div class="activity-placeholder">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                    <div class="activity-content">
+                        <h3>Hội Đoàn</h3>
+                        <p>Kết nối với anh chị em trong các hội đoàn để học hỏi Kinh Thánh, cầu nguyện và xây dựng cộng đoàn.</p>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-image" style="background-image: url('images/activity-missions.jpg');">
+                        <div class="activity-placeholder">
+                            <i class="bi bi-globe-americas"></i>
+                        </div>
+                    </div>
+                    <div class="activity-content">
+                        <h3>Truyền Giáo</h3>
+                        <p>Hỗ trợ và tham gia các chương trình truyền giáo loan báo Tin Mừng.</p>
+                    </div>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-image" style="background-image: url('images/activity-seniors.jpg');">
+                        <div class="activity-placeholder">
+                            <i class="bi bi-cup-hot"></i>
+                        </div>
+                    </div>
+                    <div class="activity-content">
+                        <h3>Làm Việc Bác Ái</h3>
+                        <p>Phục vụ những người cần giúp đỡ qua các chương trình từ thiện và hỗ trợ cộng đồng.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery-section">
+        <div class="galx-head container">
+            <div class="galx-idx"><span class="galx-mono">Thư viện ảnh</span><span class="galx-rule"></span><span class="galx-mono galx-count" id="galxTotal">— ảnh</span></div>
+            <h2 class="galx-title">Hình Ảnh <em>Giáo Xứ</em></h2>
+            <p class="galx-sub galx-mono">Ảnh cập nhật tự động từ album của giáo xứ · chạm để xem lớn</p>
+        </div>
+        <div class="galx-strip-wrap">
+            <div class="galx-strip" id="galxStrip" aria-label="Dải ảnh giáo xứ — cuộn ngang"></div>
+            <button class="galx-arrow galx-prev" id="galxPrev" type="button" aria-label="Ảnh trước"><i class="bi bi-arrow-left" aria-hidden="true"></i></button>
+            <button class="galx-arrow galx-next" id="galxNext" type="button" aria-label="Ảnh sau"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="galx-foot container galx-mono">
+            <span id="galxProg">01 / —</span>
+            <span class="galx-hint">Kéo ngang để xem thêm</span>
+        </div>
+        <div class="galx-mq" id="galxMq" aria-hidden="true"><div class="galx-mq-track" id="galxMqTrack"></div></div>
+    </section>
+
+    <!-- Upcoming Events -->
+    <section class="events-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Các Mốc Son Quan Trọng</h2>
+                <p>Những sự kiện đáng nhớ của Giáo Xứ</p>
+            </div>
+            <div class="events-list">
+                <div class="event-card">
+                    <div class="event-date">
+                        <span class="month">1955</span>
+                        <span class="day">12/7</span>
+                    </div>
+                    <div class="event-details">
+                        <h3>Ngày Thành Lập Họ Đạo</h3>
+                        <p>40 xe chở đồng bào di cư từ miền Bắc đến vùng đất Cống Đôi lập nghiệp, đánh dấu ngày khai sinh Giáo Xứ Đại Hải.</p>
+                    </div>
+                </div>
+                <div class="event-card">
+                    <div class="event-date">
+                        <span class="month">2024</span>
+                        <span class="day">10</span>
+                    </div>
+                    <div class="event-details">
+                        <h3>Hoàn Thành Trùng Tu Nhà Thờ</h3>
+                        <p>Sau 6 tháng đại tu, thánh đường Đại Hải trở thành một trong những nhà thờ đẹp của Giáo Phận Cần Thơ.</p>
+                    </div>
+                </div>
+                <div class="event-card">
+                    <div class="event-date">
+                        <span class="month">2024</span>
+                        <span class="day">31/10</span>
+                    </div>
+                    <div class="event-details">
+                        <h3>Lễ Tạ Ơn 70 Năm Thành Lập</h3>
+                        <p>Mừng kỷ niệm 70 năm thành lập Giáo Xứ, mừng Bổn Mạng Đức Mẹ Mân Côi và 30 năm Hồng Ân Linh Mục của Cha sở Phêrô.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-header light">
+                <h2>Liên Hệ</h2>
+                <p>Chúng tôi luôn sẵn sàng đón tiếp bạn</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-geo-alt"></i>
+                        </div>
+                        <div>
+                            <h3>Địa Chỉ</h3>
+                            <p>Xã Đại Hải, Huyện Kế Sách<br>Tỉnh Sóc Trăng</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+                        <div>
+                            <h3>Email</h3>
+                            <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9bf8f4f5effaf8efdbfcf2faf4e3eefffaf2f3faf2b5f8f4f6">[email&#160;protected]</a></p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div>
+                            <h3>Liên Hệ Quý Cha</h3>
+                            <p>Cha Phêrô Chu Quang Trịnh</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-map">
+                    <iframe
+                        title="Bản đồ đường đến Giáo Xứ Đại Hải"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1500!2d105.86393876931413!3d9.75299270177153!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwNDUnMTAuOCJOIDEwNcKwNTEnNTAuMiJF!5e0!3m2!1svi!2s!4v1702300000000!5m2!1svi!2s"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                    <a href="https://maps.app.goo.gl/RKDXPrMRKdjpgMNc9" target="_blank" class="map-link">
+                        <i class="bi bi-box-arrow-up-right"></i> Xem bản đồ lớn hơn
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    </main>
+<footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="bi bi-cross"></i>
+                    <span>GIÁO XỨ ĐẠI HẢI</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#home">Trang Chủ</a>
+                    <a href="#about">Giới Thiệu</a>
+                    <a href="#services">Thánh Lễ</a>
+                    <a href="#contact">Liên Hệ</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://www.facebook.com/gxdaihai/" target="_blank" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.youtube.com/watch?v=Je9lyNJcjQg" target="_blank" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                                    </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Giáo Xứ Đại Hải. Tất cả quyền được bảo lưu.</p>
+                <p class="verse">"Vì ở đâu có hai ba người họp lại nhân danh Thầy, thì có Thầy ở đấy, giữa họ." - Mt 18:20</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Featured-article popup teaser -->
+    <!-- Background hymn: no visible player. The iframe is created only when
+         the reader clicks the popup teaser (a user gesture, so sound is
+         allowed) and lives offscreen. data-vid comes from featured.json
+         (audio.id) or this baked default. -->
+    <div id="hymn-player" data-vid="mD8WgJesWUU" data-title="Cảm Mến Ân Tình - Phùng Minh Mẫn"
+         style="position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden" aria-hidden="true"></div>
+    <button id="hymn-toggle" class="hymn-toggle" type="button" hidden aria-label="Tắt nhạc">
+        <i class="bi bi-volume-up-fill"></i>
+    </button>
+
+    <div id="feature-teaser" role="complementary" aria-label="Bài viết mới" class="feature-teaser" hidden>
+        <button class="feature-teaser-close" type="button" aria-label="Đóng">&times;</button>
+        <a class="feature-teaser-link" href="#bai-viet">
+            <img class="feature-teaser-thumb" src="images/thanh-le-ta-on-tan-linh-muc-giuse-nguyen-khai-hoan.jpg" alt="" loading="lazy" onerror="this.style.display='none'">
+            <span class="feature-teaser-text">
+                <span class="feature-teaser-tag"><i class="bi bi-megaphone-fill"></i> Bài viết mới</span>
+                <span class="feature-teaser-title">Biển Rộng Tình Thương — Thánh lễ Tạ ơn của Tân Linh mục Giuse Nguyễn Khải Hoàn, O.P.</span>
+                <span class="feature-teaser-cta">Xem bài viết <i class="bi bi-arrow-right"></i></span>
+            </span>
+        </a>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileMenuBtn.classList.toggle('active');
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Close mobile menu if open
+                    navLinks.classList.remove('active');
+                    mobileMenuBtn.classList.remove('active');
+                }
+            });
+        });
+
+        // Navbar background on scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Feast days data
+        const feastDays = [
+            { date: '24/12', title: 'Thánh Lễ Vọng Giáng Sinh', description: 'Đêm Diễn Nguyện Giáng Sinh và Thánh Lễ Đêm Mừng Chúa Giáng Sinh' },
+            { date: '25/12', title: 'Thánh Lễ Giáng Sinh', description: 'Thánh Lễ Trọng Mừng Chúa Giáng Sinh' },
+            { date: '01/01', title: 'Lễ Đức Mẹ Maria Mẹ Thiên Chúa', description: 'Thánh Lễ Trọng Mừng Đức Mẹ Maria Mẹ Thiên Chúa' },
+            { date: '06/01', title: 'Lễ Hiển Linh', description: 'Mừng Chúa Giêsu Hiển Linh Cho Muôn Dân' },
+            { date: '14/02', title: 'Tro', description: 'Ngày Tro - Bắt Đầu Mùa Chay' },
+            { date: '19/03', title: 'Lễ Thánh Giuse', description: 'Mừng Bổn Mạng Thánh Giuse Bạn Trăm Năm Đức Maria' },
+            { date: '25/03', title: 'Lễ Truyền Tin', description: 'Mừng Đức Mẹ Nhận Lời Thiên Thần Truyền Tin' },
+            { date: '01/04', title: 'Chúa Nhật Lá', description: 'Tuần Thánh - Chúa Nhật Lễ Lá' },
+            { date: '06/04', title: 'Thứ Sáu Tuần Thánh', description: 'Tưởng Niệm Cuộc Thương Khó Của Chúa Giêsu' },
+            { date: '08/04', title: 'Chủ Nhật Phục Sinh', description: 'Thánh Lễ Vọng Phục Sinh và Thánh Lễ Chúa Phục Sinh' },
+            { date: '17/05', title: 'Lễ Chúa Thăng Thiên', description: 'Mừng Chúa Giêsu Lên Trời' },
+            { date: '27/05', title: 'Lễ Chúa Thánh Thần Hiện Xuống', description: 'Mừng Chúa Thánh Thần Hiện Xuống Cùng Các Tông Đồ' },
+            { date: '07/10', title: 'Đức Mẹ Mân Côi', description: 'Mừng Bổn Mạng Giáo Xứ - Đức Mẹ Mân Côi' },
+            { date: '01/11', title: 'Lễ Các Thánh Nam Nữ', description: 'Mừng Lễ Các Thánh Nam Nữ' },
+            { date: '02/11', title: 'Lễ Các Đẳng Linh Hồn', description: 'Cầu Cho Các Linh Hồn Tín Hữu Qua Đời' },
+            { date: '08/12', title: 'Lễ Đức Mẹ Vô Nhiễm Nguyên Tội', description: 'Mừng Đức Mẹ Vô Nhiễm Nguyên Tội' }
+        ];
+
+        // Load feast days
+        function loadFeastDays() {
+            const feastDaysContainer = document.getElementById('feast-days-list');
+            feastDaysContainer.innerHTML = '';
+
+            feastDays.forEach(feast => {
+                const feastCard = document.createElement('div');
+                feastCard.className = 'feast-day-card';
+
+                feastCard.innerHTML = `
+                    <div class="feast-date">
+                        <i class="bi bi-calendar-heart"></i>
+                        <span>${feast.date}</span>
+                    </div>
+                    <div class="feast-content">
+                        <h3>${feast.title}</h3>
+                        <p>${feast.description}</p>
+                    </div>
+                `;
+
+                feastDaysContainer.appendChild(feastCard);
+            });
+        }
+
+        // Load feast days when page loads
+        window.addEventListener('DOMContentLoaded', loadFeastDays);
+
+        // ============================================
+        // Daily Catholic News (đọc từ news.json)
+        // news.json được cập nhật tự động mỗi ngày qua GitHub Actions.
+        // ============================================
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : String(str);
+            return div.innerHTML;
+        }
+
+        function formatNewsDate(iso) {
+            const d = new Date(iso);
+            if (isNaN(d.getTime())) return '';
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            return `${dd}/${mm}/${d.getFullYear()}`;
+        }
+
+        function loadNews() {
+            const list = document.getElementById('news-list');
+            const updated = document.getElementById('news-updated');
+            if (!list) return;
+
+            // Cache-bust so visitors get the freshest file after each deploy.
+            fetch('news.json?t=' + Date.now(), { cache: 'no-store' })
+                .then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    const items = (data && data.items) || [];
+                    if (!items.length) {
+                        list.innerHTML = '<p class="news-status">Hiện chưa có tin tức để hiển thị.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = '';
+                    items.forEach(item => {
+                        const card = document.createElement('a');
+                        card.className = 'news-card';
+                        card.href = item.link;
+                        card.target = '_blank';
+                        card.rel = 'noopener noreferrer';
+
+                        const dateStr = formatNewsDate(item.date);
+                        const excerpt = item.excerpt
+                            ? `<p class="news-excerpt">${escapeHtml(item.excerpt)}</p>`
+                            : '';
+
+                        card.innerHTML = `
+                            <div class="news-card-top">
+                                <span class="news-source">${escapeHtml(item.source || 'Tin Công Giáo')}</span>
+                                ${dateStr ? `<span class="news-date"><i class="bi bi-calendar3"></i> ${dateStr}</span>` : ''}
+                            </div>
+                            <h3 class="news-title">${escapeHtml(item.title)}</h3>
+                            ${excerpt}
+                            <span class="news-readmore">Đọc thêm <i class="bi bi-arrow-right"></i></span>
+                        `;
+                        list.appendChild(card);
+                    });
+
+                    if (updated && data.updated) {
+                        const u = formatNewsDate(data.updated);
+                        if (u) updated.textContent = 'Cập nhật lần cuối: ' + u;
+                    }
+                })
+                .catch(() => {
+                    list.innerHTML = '<p class="news-status">Không tải được tin tức lúc này. Vui lòng thử lại sau.</p>';
+                });
+        }
+
+        // Load news when page loads
+        window.addEventListener('DOMContentLoaded', loadNews);
+
+        // ============================================
+        // Lời Chúa Hôm Nay (đọc từ liturgy.json)
+        // ============================================
+        function loadLiturgy() {
+            var dayEl = document.getElementById('liturgy-day');
+            var box = document.getElementById('liturgy-content');
+            if (!box) return;
+            fetch('liturgy.json?t=' + Date.now(), { cache: 'no-store' })
+                .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then(function (data) {
+                    var readings = (data && data.readings) || [];
+                    if (!readings.length) {
+                        box.innerHTML = '<p class="liturgy-status">Chưa có Lời Chúa để hiển thị.</p>';
+                        return;
+                    }
+                    if (data.seasonColor) box.style.setProperty('--liturgy-accent', data.seasonColor);
+                    if (dayEl) {
+                        var dd = formatNewsDate(data.date);
+                        dayEl.textContent = (data.liturgicalDay || '') + (dd ? ' · ' + dd : '');
+                    }
+                    var html = '';
+                    readings.forEach(function (rdg) {
+                        var open = /Tin M/i.test(rdg.label) ? ' open' : '';
+                        html += '<details class="reading"' + open + '>' +
+                            '<summary><span class="reading-label">' + escapeHtml(rdg.label) + '</span>' +
+                            (rdg.ref ? ' <span class="reading-ref">' + escapeHtml(rdg.ref) + '</span>' : '') +
+                            '</summary>' +
+                            '<div class="reading-text">' + escapeHtml(rdg.text) + '</div>' +
+                            '</details>';
+                    });
+                    if (data.audioUrl) {
+                        html += '<div class="liturgy-audio">' +
+                            '<span class="liturgy-audio-label"><i class="bi bi-volume-up"></i> Nghe Lời Chúa hôm nay</span>' +
+                            '<audio controls preload="none" src="' + data.audioUrl + '"></audio>' +
+                            '</div>';
+                    }
+                    if (data.fullUrl) {
+                        html += '<a class="liturgy-full" href="' + data.fullUrl + '" target="_blank" rel="noopener noreferrer">' +
+                            '<i class="bi bi-box-arrow-up-right"></i> Đọc toàn bộ tại Vatican News</a>';
+                    }
+                    box.innerHTML = html;
+                })
+                .catch(function () {
+                    box.innerHTML = '<p class="liturgy-status">Không tải được Lời Chúa lúc này.</p>';
+                });
+        }
+        window.addEventListener('DOMContentLoaded', loadLiturgy);
+
+        // ============================================
+        // Thông Báo Giáo Xứ (đọc từ announcements.json — Google Sheet)
+        // Ẩn cả mục và link menu khi chưa có thông báo.
+        // ============================================
+        function loadAnnouncements() {
+            var sec = document.getElementById('thong-bao');
+            var list = document.getElementById('announce-list');
+            var nav = document.getElementById('nav-thongbao');
+            if (!sec || !list) return;
+            fetch('announcements.json?t=' + Date.now(), { cache: 'no-store' })
+                .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then(function (data) {
+                    var items = (data && data.items) || [];
+                    if (!items.length) return; // keep hidden
+                    list.innerHTML = '';
+                    items.forEach(function (it) {
+                        var card = document.createElement('div');
+                        card.className = 'announce-card' + (it.pinned ? ' pinned' : '');
+                        var dateStr = it.date ? formatNewsDate(it.date) : '';
+                        card.innerHTML =
+                            (it.pinned ? '<span class="announce-pin"><i class="bi bi-pin-angle-fill"></i> Ghim</span>' : '') +
+                            '<div class="announce-head">' +
+                                '<h3 class="announce-title">' + escapeHtml(it.title) + '</h3>' +
+                                (dateStr ? '<span class="announce-date">' + dateStr + '</span>' : '') +
+                            '</div>' +
+                            '<p class="announce-content">' + escapeHtml(it.content).replace(/\n/g, '<br>') + '</p>';
+                        list.appendChild(card);
+                    });
+                    sec.hidden = false;
+                    if (nav) nav.hidden = false;
+                })
+                .catch(function () { /* stay hidden on error */ });
+        }
+        window.addEventListener('DOMContentLoaded', loadAnnouncements);
+
+        // ============================================
+        // Hero background video (YouTube IFrame API)
+        // - Autoplays on load, muted (âm thanh tắt mặc định)
+        // - Sound on/off toggle button
+        // - Rotates between videos by day of the month
+        // ============================================
+        (function () {
+            var VIDEOS = [
+                { id: 'Je9lyNJcjQg', start: 0 },
+                { id: '59kCnuT1m1M', start: 67 }
+            ];
+            var pick = VIDEOS[new Date().getDate() % VIDEOS.length];
+            var heroPlayer = null;
+            var btn = document.getElementById('hero-sound-toggle');
+            var hero = document.querySelector('.hero');
+            var loopTimer = null;
+            var apiReady = false;
+
+            // Inline-SVG icons: the control is never blank if the icon CDN is
+            // blocked, and never wiped on toggle (we always rewrite to a full SVG).
+            var SVG_MUTED = '<svg class="hst-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">' +
+                '<path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
+                '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 8l5 8M21 8l-5 8"></path>' +
+                '</svg><span class="sr-only">Bật/Tắt âm thanh</span>';
+            var SVG_ON = '<svg class="hst-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">' +
+                '<path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
+                '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 8.5a4.5 4.5 0 0 1 0 7M18.5 5.5a8.5 8.5 0 0 1 0 13"></path>' +
+                '</svg><span class="sr-only">Bật/Tắt âm thanh</span>';
+
+            function revealToggle() {
+                if (!btn) return;
+                btn.hidden = false;
+                btn.classList.remove('is-loading');
+            }
+
+            // Respect reduced-motion and data-saver / 2g only. 3g is intentionally
+            // NOT suppressed — many usable rural VN connections report '3g'.
+            var reduceMotion = window.matchMedia &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var conn = navigator.connection || navigator.webkitConnection;
+            var saveData = !!(conn && (conn.saveData || /(^|\b)(2g|slow-2g)\b/.test(conn.effectiveType || '')));
+            if (reduceMotion || saveData) return;   // keep gradient; toggle stays hidden (no audio to control)
+
+            // Show the button immediately but inert until the player is usable.
+            if (btn) { btn.hidden = false; btn.classList.add('is-loading'); }
+
+            // Auto-hide the title/buttons a few seconds after the video starts
+            // (clean view of the video); any interaction brings them back.
+            var videoPlaying = false;
+            var dimTimer = null;
+            function scheduleDim() {
+                if (!hero) return;
+                hero.classList.remove('hero-dimmed');
+                clearTimeout(dimTimer);
+                if (videoPlaying) dimTimer = setTimeout(function () { hero.classList.add('hero-dimmed'); }, 6000);
+            }
+            ['mousemove', 'touchstart', 'keydown', 'scroll'].forEach(function (ev) {
+                window.addEventListener(ev, scheduleDim, { passive: true });
+            });
+
+            // Load the IFrame Player API; reveal the toggle as soon as the script
+            // loads (covers slow networks where onReady is late).
+            var tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.onload = function () { revealToggle(); };
+            var firstScript = document.getElementsByTagName('script')[0];
+            firstScript.parentNode.insertBefore(tag, firstScript);
+
+            // If the API never initialises (blocked in VN), keep the gradient and
+            // hide the dead control after 8s — ONLY if the player never built.
+            setTimeout(function () {
+                if (!apiReady && btn) { btn.hidden = true; }
+            }, 8000);
+
+            // Pre-empt YouTube end-screens / related-card flashes: re-seek BEFORE
+            // the natural end so the loop restarts (and resumes at 67s) cleanly.
+            function startLoopWatch(p) {
+                if (loopTimer) clearInterval(loopTimer);
+                loopTimer = setInterval(function () {
+                    if (!p || typeof p.getCurrentTime !== 'function') return;
+                    var dur = p.getDuration ? p.getDuration() : 0;
+                    if (dur && p.getCurrentTime() >= dur - 1.0) {
+                        p.seekTo(pick.start, true);
+                    }
+                }, 500);
+            }
+
+            window.onYouTubeIframeAPIReady = function () {
+                apiReady = true;
+                heroPlayer = new YT.Player('hero-player', {
+                    width: '100%', height: '100%', videoId: pick.id,
+                    playerVars: {
+                        autoplay: 1, mute: 1, controls: 0, start: pick.start,
+                        playsinline: 1, modestbranding: 1, rel: 0, disablekb: 1,
+                        fs: 0, iv_load_policy: 3, cc_load_policy: 0,
+                        playlist: pick.id, loop: 1
+                    },
+                    events: {
+                        onReady: function (e) {
+                            e.target.mute();          // muted autoplay is universally allowed
+                            e.target.playVideo();
+                            revealToggle();           // enable the button here, not on PLAYING
+                        },
+                        onStateChange: function (e) {
+                            if (e.data === YT.PlayerState.PLAYING) {
+                                if (hero) hero.classList.add('video-ready'); // fade video in
+                                revealToggle();
+                                startLoopWatch(e.target);
+                                videoPlaying = true;
+                                scheduleDim(); // begin the auto-hide countdown
+                            } else if (e.data === YT.PlayerState.ENDED) {
+                                e.target.seekTo(pick.start, true);
+                                e.target.playVideo();
+                            }
+                        },
+                        onError: function () { if (btn) btn.hidden = true; }
+                    }
+                });
+            };
+
+            // Sound toggle. unMute() runs only inside this click (user gesture).
+            if (btn) {
+                btn.addEventListener('click', function () {
+                    if (!heroPlayer || typeof heroPlayer.isMuted !== 'function') return;
+                    if (heroPlayer.isMuted()) {
+                        heroPlayer.unMute();
+                        heroPlayer.setVolume(55);
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-pressed', 'true');
+                        btn.setAttribute('aria-label', 'Tắt âm thanh video');
+                        btn.innerHTML = SVG_ON;
+                    } else {
+                        heroPlayer.mute();
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-pressed', 'false');
+                        btn.setAttribute('aria-label', 'Bật âm thanh video');
+                        btn.innerHTML = SVG_MUTED;
+                    }
+                });
+            }
+        })();
+
+        // ============================================
+        // Bài Viết Nổi Bật: render from featured.json — updated weekly by
+        // .github/workflows/weekly-featured.yml + fetch-featured.js from the
+        // diocese's site, or hand-written and "pinned" for a parish event.
+        // The HTML carries a baked-in article as fallback; when featured.json
+        // loads, the section (and the popup teaser) is rebuilt from it. The
+        // JSON is treated as DATA: every value lands via textContent /
+        // validated URL properties, never as HTML.
+        //
+        // Optional fields beyond title/url/image/source/paras:
+        //   fit: "contain"  — poster-style hero, shown whole instead of cropped
+        //   thumb: "images/…" — landscape image for the popup teaser only
+        //   subtitle: string — date/time line right under the title
+        //   leads: number    — how many paragraphs stay visible (default 2)
+        //   audio: {id, title}            — background hymn (no visible
+        //          player); starts when the reader arrives via the popup
+        //   video: {id, title, caption}   — YouTube embed after the leads
+        //   video2: {id, title, caption}  — YouTube embed at the end of "Đọc tiếp"
+        //   video3: {id, title, caption}  — YouTube embed closing "Đọc tiếp"
+        //   image2: {src, alt, caption}   — figure at the top of "Đọc tiếp"
+        //   image3: {src, alt, caption}   — figure at the end of "Đọc tiếp"
+        // ============================================
+        (function () {
+            var art = document.querySelector('#bai-viet .featured-article');
+            if (!art || !window.fetch) return;
+            /* an image is either an https URL or a file shipped in images/ */
+            function okSrc(s) {
+                s = String(s || '');
+                return /^https:\/\//.test(s) || /^images\/[A-Za-z0-9._-]+$/.test(s);
+            }
+            fetch('featured.json', { cache: 'no-cache' })
+                .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+                .then(function (d) {
+                    if (!d || typeof d.title !== 'string' || !d.title.trim() ||
+                        !Array.isArray(d.paras) || d.paras.length < 2 ||
+                        !/^https:\/\//.test(String(d.url || ''))) return;
+                    var paras = d.paras.filter(function (p) { return typeof p === 'string' && p.trim(); });
+                    if (paras.length < 2) return;
+
+                    var body = art.querySelector('.featured-body');
+                    var title = art.querySelector('.featured-title');
+                    var img = art.querySelector('.featured-figure img');
+                    var det = art.querySelector('.featured-more');
+                    var srcLink = art.querySelector('.featured-source');
+                    if (!body || !title || !det || !srcLink) return;
+
+                    title.textContent = d.title.toLocaleUpperCase('vi');
+                    var sub = art.querySelector('.featured-subtitle');
+                    if (sub) {
+                        if (typeof d.subtitle === 'string' && d.subtitle.trim()) {
+                            sub.textContent = d.subtitle;
+                            sub.style.display = '';
+                        } else {
+                            sub.style.display = 'none';
+                        }
+                    }
+                    /* background hymn: retarget (or disable) the hidden
+                       holder; the iframe itself is only created on the
+                       popup click */
+                    var hymn = document.getElementById('hymn-player');
+                    if (hymn) {
+                        var aud = d.audio;
+                        if (aud && /^[A-Za-z0-9_-]{6,20}$/.test(String(aud.id || ''))) {
+                            hymn.dataset.vid = String(aud.id);
+                            if (aud.title) hymn.dataset.title = String(aud.title);
+                        } else {
+                            delete hymn.dataset.vid;
+                        }
+                    }
+                    if (img && okSrc(d.image)) {
+                        img.src = d.image;
+                        img.alt = d.title;
+                        var fig = img.closest('.featured-figure');
+                        if (fig) {
+                            fig.style.display = '';
+                            fig.classList.toggle('is-contain', d.fit === 'contain');
+                        }
+                    }
+                    /* clear the baked paragraphs (leads + details body) and any
+                       baked media, so a different article can't inherit them */
+                    body.querySelectorAll(':scope > p:not(.featured-subtitle)')
+                        .forEach(function (p) { p.remove(); });
+                    det.querySelectorAll('p').forEach(function (p) { p.remove(); });
+                    art.querySelectorAll('.featured-video, .featured-inline-figure')
+                        .forEach(function (n) { n.remove(); });
+                    /* the leads stay visible, the rest goes behind "Đọc tiếp" */
+                    var nLead = Math.min(Math.max(parseInt(d.leads, 10) || 2, 1), 4);
+                    paras.slice(0, nLead).forEach(function (t) {
+                        var p = document.createElement('p');
+                        p.textContent = t;
+                        body.insertBefore(p, det);
+                    });
+                    function videoFig(vid) {
+                        if (!vid || !/^[A-Za-z0-9_-]{6,20}$/.test(String(vid.id || ''))) return null;
+                        var vFig = document.createElement('figure');
+                        vFig.className = 'featured-video';
+                        var vBox = document.createElement('div');
+                        vBox.className = 'featured-video-frame';
+                        var ifr = document.createElement('iframe');
+                        ifr.src = 'https://www.youtube-nocookie.com/embed/' + vid.id;
+                        ifr.title = String(vid.title || d.title);
+                        ifr.loading = 'lazy';
+                        ifr.allowFullscreen = true;
+                        ifr.referrerPolicy = 'strict-origin-when-cross-origin';
+                        ifr.allow = 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                        vBox.appendChild(ifr);
+                        vFig.appendChild(vBox);
+                        if (vid.caption) {
+                            var vCap = document.createElement('figcaption');
+                            vCap.textContent = vid.caption;
+                            vFig.appendChild(vCap);
+                        }
+                        return vFig;
+                    }
+                    /* optional video, between the leads and "Đọc tiếp" */
+                    var vMain = videoFig(d.video);
+                    if (vMain) body.insertBefore(vMain, det);
+                    var rest = paras.slice(nLead);
+                    var im2 = d.image2 && okSrc(d.image2.src) ? d.image2 : null;
+                    var im3 = d.image3 && okSrc(d.image3.src) ? d.image3 : null;
+                    var v2 = videoFig(d.video2);
+                    var v3 = videoFig(d.video3);
+                    det.style.display = (rest.length || im2 || im3 || v2 || v3) ? '' : 'none';
+                    det.open = false;
+                    function inlineFig(im) {
+                        var iFig = document.createElement('figure');
+                        iFig.className = 'featured-inline-figure';
+                        var iImg = document.createElement('img');
+                        iImg.src = im.src;
+                        iImg.alt = String(im.alt || d.title);
+                        iImg.loading = 'lazy';
+                        iImg.onerror = function () { iFig.style.display = 'none'; };
+                        iFig.appendChild(iImg);
+                        if (im.caption) {
+                            var iCap = document.createElement('figcaption');
+                            iCap.textContent = im.caption;
+                            iFig.appendChild(iCap);
+                        }
+                        return iFig;
+                    }
+                    /* optional second photo, first thing inside "Đọc tiếp" */
+                    if (im2) det.appendChild(inlineFig(im2));
+                    rest.forEach(function (t) {
+                        var p = document.createElement('p');
+                        p.textContent = t;
+                        det.appendChild(p);
+                    });
+                    /* second video, third photo, third video — closing "Đọc tiếp" */
+                    if (v2) det.appendChild(v2);
+                    if (im3) det.appendChild(inlineFig(im3));
+                    if (v3) det.appendChild(v3);
+                    var signoff = document.createElement('p');
+                    signoff.className = 'featured-signoff';
+                    var em = document.createElement('em');
+                    em.textContent = d.source || 'Nguồn';
+                    signoff.appendChild(em);
+                    det.appendChild(signoff);
+                    /* source link */
+                    srcLink.href = d.url;
+                    srcLink.textContent = '';
+                    var ico = document.createElement('i');
+                    ico.className = 'bi bi-globe2';
+                    srcLink.appendChild(ico);
+                    var host = '';
+                    try { host = ' (' + new URL(d.url).hostname.replace(/^www\./, '') + ')'; } catch (e) {}
+                    srcLink.appendChild(document.createTextNode(' Nguồn: ' + (d.source || '') + host));
+                    /* popup teaser follows the article */
+                    var tTitle = document.querySelector('.feature-teaser-title');
+                    var tThumb = document.querySelector('.feature-teaser-thumb');
+                    if (tTitle) tTitle.textContent = d.title;
+                    /* the hero is often a tall poster; "thumb" lets an article give
+                       the popup a landscape crop instead, so faces don't get cut */
+                    var thumbSrc = okSrc(d.thumb) ? d.thumb : (okSrc(d.image) ? d.image : '');
+                    if (tThumb && thumbSrc) tThumb.src = thumbSrc;
+                }).catch(function () {});
+        })();
+
+        // ============================================
+        // Các bài viết trước: render from featured-archive.json. The HTML
+        // carries a baked-in list as fallback; the JSON (maintained by
+        // fetch-featured.js on each weekly swap, or by hand for parish
+        // articles) replaces it when it loads. Values land via textContent /
+        // validated URLs only.
+        // ============================================
+        (function () {
+            var box = document.getElementById('featured-archive');
+            var list = document.getElementById('featured-archive-list');
+            if (!box || !list || !window.fetch) return;
+            fetch('featured-archive.json', { cache: 'no-cache' })
+                .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+                .then(function (d) {
+                    var items = (d && Array.isArray(d.items) ? d.items : [])
+                        .filter(function (it) {
+                            return it && typeof it.title === 'string' && it.title.trim() &&
+                                /^https:\/\//.test(String(it.url || ''));
+                        })
+                        .slice(0, 20);
+                    if (!items.length) return;
+                    list.textContent = '';
+                    items.forEach(function (it) {
+                        var li = document.createElement('li');
+                        var a = document.createElement('a');
+                        a.href = it.url;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.textContent = it.title;
+                        li.appendChild(a);
+                        var meta = [];
+                        var dt = new Date(String(it.date || ''));
+                        if (!isNaN(dt)) meta.push(dt.toLocaleDateString('vi-VN'));
+                        if (it.source) meta.push(String(it.source));
+                        if (meta.length) {
+                            var sp = document.createElement('span');
+                            sp.className = 'featured-archive-meta';
+                            sp.textContent = meta.join(' — ');
+                            li.appendChild(sp);
+                        }
+                        list.appendChild(li);
+                    });
+                }).catch(function () {});
+        })();
+
+        // ============================================
+        // Background hymn: offscreen YouTube player plus a small floating
+        // speaker button (bottom-right) that only shows while the hymn is
+        // playing. Stopping removes the iframe; starting again rebuilds it —
+        // both happen inside a click, so sound is always allowed. The
+        // enablejsapi handshake lets us hide the button when the hymn ends.
+        // ============================================
+        var hymnCtl = (function () {
+            var holder = document.getElementById('hymn-player');
+            var btn = document.getElementById('hymn-toggle');
+            if (!holder || !btn) return { play: function () {} };
+            var icon = btn.querySelector('i');
+            var YT_ORIGIN = 'https://www.youtube-nocookie.com';
+            function setBtn(playing) {
+                btn.hidden = false;
+                btn.setAttribute('aria-label', playing ? 'Tắt nhạc' : 'Mở nhạc');
+                if (icon) icon.className = playing ? 'bi bi-volume-up-fill' : 'bi bi-volume-mute-fill';
+                btn.classList.toggle('is-muted', !playing);
+            }
+            function stop() {
+                var ifr = holder.querySelector('iframe');
+                if (ifr) ifr.remove();
+                setBtn(false);
+            }
+            function play() {
+                var vid = holder.dataset.vid;
+                if (!vid || !/^[A-Za-z0-9_-]{6,20}$/.test(vid)) return;
+                if (holder.querySelector('iframe')) { setBtn(true); return; }
+                var ifr = document.createElement('iframe');
+                ifr.src = YT_ORIGIN + '/embed/' + vid + '?autoplay=1&enablejsapi=1';
+                ifr.title = holder.dataset.title || 'Thánh ca';
+                ifr.allow = 'autoplay; encrypted-media';
+                ifr.referrerPolicy = 'strict-origin-when-cross-origin';
+                ifr.tabIndex = -1;
+                ifr.addEventListener('load', function () {
+                    try {
+                        ifr.contentWindow.postMessage(
+                            JSON.stringify({ event: 'listening', id: 'hymn' }), YT_ORIGIN);
+                    } catch (e) {}
+                });
+                holder.appendChild(ifr);
+                setBtn(true);
+            }
+            btn.addEventListener('click', function () {
+                if (holder.querySelector('iframe')) stop(); else play();
+            });
+            /* the hymn finished: remove the player and tidy the button away */
+            window.addEventListener('message', function (e) {
+                if (e.origin !== YT_ORIGIN) return;
+                var data;
+                try { data = JSON.parse(e.data); } catch (err) { return; }
+                if (data && data.info && data.info.playerState === 0) {
+                    var ifr = holder.querySelector('iframe');
+                    if (ifr) ifr.remove();
+                    btn.hidden = true;
+                }
+            });
+            return { play: play };
+        })();
+
+        // ============================================
+        // Featured-article popup teaser (bottom-left)
+        // ============================================
+        (function () {
+            var popup = document.getElementById('feature-teaser');
+            if (!popup) return;
+            /* seen-key derives from the article title, so a new weekly
+               article re-shows the teaser; computed at show/dismiss time,
+               after featured.json has (usually) been applied */
+            function seenKey() {
+                var t = document.querySelector('#bai-viet .featured-title');
+                return 'featureTeaserSeen:' + (t ? t.textContent.trim().slice(0, 64) : '');
+            }
+            var closeBtn = popup.querySelector('.feature-teaser-close');
+            var link = popup.querySelector('.feature-teaser-link');
+            function dismiss() {
+                popup.classList.remove('show');
+                try { sessionStorage.setItem(seenKey(), '1'); } catch (e) {}
+            }
+            setTimeout(function () {
+                try { if (sessionStorage.getItem(seenKey()) === '1') return; } catch (e) {}
+                popup.hidden = false;
+                setTimeout(function () { popup.classList.add('show'); }, 30);
+                setTimeout(dismiss, 14000); /* auto-dismiss: never squats on content */
+            }, 2500);
+            if (closeBtn) closeBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dismiss();
+            });
+            if (link) link.addEventListener('click', function () {
+                var det = document.querySelector('#bai-viet .featured-more');
+                if (det) det.open = true; // expand the full article
+                /* the click is a user gesture, so the hymn may start with
+                   sound (see hymnCtl above) */
+                hymnCtl.play();
+                dismiss();
+            });
+        })();
+
+        // ============================================
+        // Thư viện ảnh: horizontal film strip from the parish album.
+        // Baked list renders instantly; /api/photos refreshes live, so adding
+        // photos to the Google Photos album updates the site automatically.
+        // ============================================
+        (function () {
+            var GALLERY_PHOTOS = ["https://lh3.googleusercontent.com/pw/AP1GczM67v1NUsmtslOczqXqgeYymXZOdP7IiebHFrBEzMV-DxLpU0Z487jmlp7KljqgiegLMFbGA1tuaGUHF2OTGxnIQVs9zznVJ1vZPCOL4OojGHjSu_mLeQ","https://lh3.googleusercontent.com/pw/AP1GczMCoGEXXe6hVS0giqKStPodBINncOORecm8J3y9zWmIaDMrnwYBh8vbFIrpCQGeDfuh6_CwAuUgzKtT_owgsY55qtV61TV3pB3iVlKSn6V4J1jUhEzRQA","https://lh3.googleusercontent.com/pw/AP1GczMCz8UhXXor8VGagSYAoydXRV4DbI5MoQbEXGzj6pR94PA17scy74UHS9fVFvQIwuYskUm7XE1Vr5ojk0BYZdnDEY_1EKGpV26uWmx5JDHJNmpG-5i3hQ","https://lh3.googleusercontent.com/pw/AP1GczMgda_2HZCw1zgGLItGwKg-hqoOKVKsEg8bD6Fw-c_dPfPmwJ1M1YafRS5hgTr0-z1LWXItneHsOYESn6Aj9fJnM572PnkXcZblakUnHmgkZkNLHMKTnA","https://lh3.googleusercontent.com/pw/AP1GczMhbrEfBG_lfHxjmc2aE1U8AXhfXSWMwMys4NFX93wY1WsgmBFd2SScWUezs9350VOUFwzJPC-xx9V9PyXeXesRN34_BQ6YUjIJke3oURgNmwd85mpevA","https://lh3.googleusercontent.com/pw/AP1GczMJ_pQ3NQgS6q9qWc8KI76jPsNl9FzWaGL9iGE2BQQhNZnyboJHpKhEhV1Csp8msoncVUlFdu3SVTfaL_t8nVbxFOshcCTKfE-XxHbJy-vwudRFW3oyRg","https://lh3.googleusercontent.com/pw/AP1GczMN2sYHgw1F9qfKolcS3k1_xiaVXmLVpXGcko03_DBm4tl9M1dDqV3NQoMcK5C-KBWmUPQ0c207lBEQTewlBHCmudr8mbCufcoLfXKQA9vnT0-vJWJZ4g","https://lh3.googleusercontent.com/pw/AP1GczMOG2zJkStHNgxODpxDhJXnTTalyvY4We6PFy8O_yCDpw_nskuLNBF5hRPiE2HGYyvXCb5HgMRXDNu4JEf82XxRofDHYqlNeU4w3Zse8xlXnwPD5gjefA","https://lh3.googleusercontent.com/pw/AP1GczMPzlcPRwCZ2U9jc5ujuuSBRcVkBJqTCUWF3T2C6i56Uap-gdnUi0xDsSX8f36TfjZkCNwEKG4nTHcC3EB5DnQjYC5JicOMVXwpslUnDp_RzfOv4hh5WQ","https://lh3.googleusercontent.com/pw/AP1GczMQNRIFx-tpv_kpCsuUukjTWQfjh0TBfbXh9WePQnPWNDnePNTAHwg2lOxGwyWa_IrUIGZzwPlIHMcgeAL4rnZD6sM7akLbHX7sC435YZ_Kt3EWQEbNnw","https://lh3.googleusercontent.com/pw/AP1GczMwXJ6qXnkImtdRGFBJ84RjTeKZPlbDRNme2uZsV2SkahZxfnHbXkG2dE_7Za2UoaQs9K20pCkgXrHRaTGVuzbsa8EUepXfDhkmgzWrrq7XXuhuk4EOrw","https://lh3.googleusercontent.com/pw/AP1GczN0k87cT4P4M-GzQXx96S3idLVrhnUTVjn6U3SsrV3dMRPKCtvnPROzsiYfDJbvXdgK4i3LS1gg7GqMLK9hHdVyex5LxlNHbSOTCbAKUbuD608bN52kLw","https://lh3.googleusercontent.com/pw/AP1GczNavUhuxqyFABPOFlNnT7PtFOEaU0yXIYGlN7yXsxpU_iV1Z2FSXMHNFnOdKSgslUPCG61t_w-4Bq8-OzolHKR5RI-v3501SK3dqt8ZmfJl7b832HeaHA","https://lh3.googleusercontent.com/pw/AP1GczNGnfFXA5h2E_3ItGxP8byKLC_GYOk2ZvL6zFe7V91GD9i9fF8DEHipk283yn1WMbTZOcWwOtuWsha0HoOJJZole1fLXPr0apmaxJc77JUwugnrZXa7uA","https://lh3.googleusercontent.com/pw/AP1GczNnClFZHwwmHv69X7nyXodorbSbKX9hY0DjM1vfxMknUE84ot182eBHM-v_V0EMg3aD_8W3kS9Q0NYYnv1u3LyWTl7DF3piIvfNLy-2LMMQqS5nTrZwdw","https://lh3.googleusercontent.com/pw/AP1GczNnSnNTsSb_DkKecoHEzQlnZ4iFL7jV6zP-aomLwdYjbCDvrVg1xAMTDx5DHJonWn8lk7qR3QKYSAlXnl7KEDm5sqfBIa2UfTlhC1z6YrDtUp8OOuY7Tg","https://lh3.googleusercontent.com/pw/AP1GczNrj8i4PFTAvWebelop0duEDdO2gEM1f8rPkb55xhNX9ryXMYPYmNYEB1S7uHhlcmK3etjzektFMybLF7x5wKPtOzY0wI94figoVO1WWmo2SlH9yiCKOQ","https://lh3.googleusercontent.com/pw/AP1GczNVi1K7mZLHDC_87UcxWAG6HYQrMMhFHrSvRdBUAa-QpMAxfHv1xzLHDdTcpWP7ojmsro2Q9E1Fi1-XDzOq3vgFA178D1gXWpQuxMd4VnmZSujI2jasjA","https://lh3.googleusercontent.com/pw/AP1GczNWq2LQNT8Tg9XRROAg_moKsw6QDYiQShrGKrc20BLodRTtoDSCY-_OKrI0eeMMIIr04JDI9AKtZICD_w5SFpC6gfXvlgsG7U5grykla3SBWLnUYUvedQ","https://lh3.googleusercontent.com/pw/AP1GczNwwJQrOlKn5lvVJ-V813J0hiq1Bfi7Q_os-QnDBazwFf7vmFRGpa5E6ffGB_Kx8TSodMR50Hvcbj8p-6Ij01e3RDxT4kfTfZng2YyHsZRQa9ArMN5Rpg","https://lh3.googleusercontent.com/pw/AP1GczNX9v4ejknKhNNO6UNHmXKzZ0uNnKIA73o2P4k5bKndgHJftaSet6eOB8JMkn4bTQ7waSo5fcF1NZhdC8Zjn_i-BZAkLu7a1c7GWPwl3ljYQH6FLwZOCA","https://lh3.googleusercontent.com/pw/AP1GczNYaaV2Xokgf8iIzwGWEutfGwt3lPKBn-jQFKLbs8B0cLk2m_amdEMT9zt1sj9Egq53uHZZBM3X9pVs1WhnGCaSxFYJZpBdIH9pFFZOuNqXFaI3eU0vbQ","https://lh3.googleusercontent.com/pw/AP1GczO0kZIXnlv-gUhnZPOIIJTvQxgQTn5WCHTDbNFeI3DzTIjsFr1slgiN9sgzOR2S6z6Id3FLaVLN-v3pEho4nfldRKEObD6j-8C3H8zCBlDCMVGJgym9FA","https://lh3.googleusercontent.com/pw/AP1GczO2vZJUsd-3Q0PGO-GgEzBgToVYX0cd1sFq0MwBwuFcBG7txCNcvDhYvTzSH1apuxu67_lb6JR50gzhLaVel8Re4Z96tzkZ4LEUmcWgds7cQkeRe6m4Aw","https://lh3.googleusercontent.com/pw/AP1GczO5nMajMQjFUkZE8zq_3TRQlYKR44XN8WaNTUORI4MEzAB_EJN9n5c50jMkFBriMas3ewvWlOQ7z7Ljyh5BU80gxDImQQnDA-mJWMlYmAavdsg-HjkR9Q","https://lh3.googleusercontent.com/pw/AP1GczOcYfpxmYSqIT_nt4VQGPsUM_ld2mSnxSXuOLlJXEcCyA-0zSsufeoU2x2rQqjsVCfwnqniWI67sAz528r4N3Mclm5m1WIyLfApra40vo9gK2uxlPNklA","https://lh3.googleusercontent.com/pw/AP1GczOEKNZpkQELK_j0jBcpRS6KKa0_TQmEi5m_4T5UCZ8WzDJAH0aZv3fbOwaQuoJILjLNu88CZ9goJ0lBbaYOPMWclgKgjHahs4xv-QhCCx3iteiviI2qWw","https://lh3.googleusercontent.com/pw/AP1GczOIUUFKueli-RBzYimDiHa-AMX-f9Gq-2CvAmcug3oQHuxrorXqUkqWudNT2zxgVlUBSOuE85bWl2w3zq3XkULDjJBYIi8sXKv5SazObZ5wcKpMHjwi_A","https://lh3.googleusercontent.com/pw/AP1GczOSyzBMk3tQFCVxWWNMRZ5o_sOjVlDBwrRVpf1fav48PuFYhCsx-l_iz6QzNdZdYHyEF6-_HAFQzV_pY1lhXFWCQl5TONOPFURrkd9xoYsmWUSk1BZ6wQ","https://lh3.googleusercontent.com/pw/AP1GczOxv1F6rNLerXhlCDZaRem29fl-eQA1zaeS0qE6OXF9Xip7a9OkC_7iBqazZxwYmip6JwwKVNkJFDSvO3AzXhcvHiK7aVD1HQkv1IeMTphfnbGoWZkjJw","https://lh3.googleusercontent.com/pw/AP1GczP7mypyrzTMc9f79wmPzhYVO5lcWipzxJJnYCzodcpcPuOTkGQ7Qdy8fsd1wOB5a72563icmFZaMI2qXf19wnMoXT-rt657ZIkStVTysI5J5qLlYshS6Q","https://lh3.googleusercontent.com/pw/AP1GczPB38oi3XwRcoBaj3pdM5mjdhRJ7BGD0ne3VmXFzGMzoskm2hEjF7LqArvGHpi21qDfIypnOgbThR8DhUNXdNrSIMrXCY75E86ITnS3h8-65VUpweFXFg","https://lh3.googleusercontent.com/pw/AP1GczPCiEgavjdaJx94GuI_HfzGHQex9aCNQgQv15SkptP4p8Az3Y9P4g5cyVwKKJbwlMEd48vcAc1Atz1KHbPO-Fegy7g7UxJQTVruEJdItiyQ9VwYhZlJOQ","https://lh3.googleusercontent.com/pw/AP1GczPFWL5meqliPItWLFBSI6cEuqlUpL_av7V1dmhO6nO1ipSTqXRv5aSUPaQtkhEF9fhyQRzx1_1D3F1hjszjhbVu8h-d6qzzMxiMJUiQns3FOr2sfGwiSg","https://lh3.googleusercontent.com/pw/AP1GczPH2sm8WrQgeiHAthdsuFaQjZFDPVwctKr8u13soBk5afQ5JBVk_SfyXWYlvCQ6zjgeFYdTOhW-ZHnAwAVjhM7dRp6RlemNQibVAfNTtkFCgbW7ujhZEw","https://lh3.googleusercontent.com/pw/AP1GczPjsPs_J5KlJfDvDLbn8i3jpztjq_vXwfbtzYNvU4ILnRu72LfazkmQW69IN-FxUGpiJ8iTW2JcoPQNAECr_QXk2Hv6kHIuEOAaP_U2CcAGtLa2zUUVZg","https://lh3.googleusercontent.com/pw/AP1GczPkAHsAs32Mvvp3lBuYM-NCZJkWYubr1WYAnSpvdW2SwIkP6Yyd6jNb1LFSsZxr1I27T4y2nQ69ON99P40uhqt3ox8ztKJg3VK99Y_cShRrCtKQdDAREA","https://lh3.googleusercontent.com/pw/AP1GczPyj_rsAvAuzlr5wVHlmYZfSEg53mzWmZSQi3jXxN91H4H6dBerUBR64BIqF7NzcVW3HiYofkPlixj7PXMArSmW0uEDW9vqZxDoFBG2WnZsnPpeo_99HQ","https://lh3.googleusercontent.com/pw/AP1GczPz_vJnAj5_OdzNcD0BBkGNc_CU1xCP4Cgxj2suZdoQcMk_cR9kVoeBuXSuLBzQG4vzqpvbuw4RnxDV3uejBPj5Xp7NZgU-Fi7LtS4jHFOOV_lqVc_oew"];
+            var strip = document.getElementById('galxStrip');
+            var mqTrack = document.getElementById('galxMqTrack');
+            var prog = document.getElementById('galxProg');
+            var total = document.getElementById('galxTotal');
+            var prevB = document.getElementById('galxPrev');
+            var nextB = document.getElementById('galxNext');
+            if (!strip) return;
+            var REDUCED = document.documentElement.classList.contains('reduced');
+            function shuffle(a) {
+                for (var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var t = a[i]; a[i] = a[j]; a[j] = t;
+                }
+                return a;
+            }
+            function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+            function fmtDur(s) { return Math.floor(s / 60) + ':' + pad2(Math.round(s % 60)); }
+            var URL_OK = /^https:\/\/lh3\.googleusercontent\.com\/pw\/[A-Za-z0-9_-]+$/;
+            /* media items: {u, v?, d?} — v:1 is a real video from the album,
+               played through /api/video (the Google video CDN can't be
+               hotlinked). The baked list renders instantly as photos;
+               /api/photos upgrades it and brings the video markers. */
+            var ITEMS = GALLERY_PHOTOS.map(function (u) { return { u: u }; });
+            var LIST = shuffle(ITEMS.slice());
+            function photoUrls() {
+                var out = [];
+                for (var i = 0; i < ITEMS.length; i++) if (!ITEMS[i].v) out.push(ITEMS[i].u);
+                return out;
+            }
+            function announce() {
+                window.__gxPhotos = photoUrls();
+                try { document.dispatchEvent(new CustomEvent('gx:photos', { detail: window.__gxPhotos })); } catch (_) {}
+            }
+            announce();
+            function build() {
+                var html = '';
+                var nVid = 0;
+                for (var i = 0; i < LIST.length; i++) {
+                    var it = LIST[i];
+                    var isV = !!it.v;
+                    if (isV) nVid++;
+                    html += '<figure class="galx-fr' + (isV ? ' galx-vid' : '') + '">' +
+                        '<button class="galx-btn" type="button" ' +
+                        (isV
+                            ? 'data-video="' + it.u.slice(it.u.lastIndexOf('/') + 1) + '" data-poster="' + it.u + '=w1600"'
+                            : 'data-full="' + it.u + '=w1600"') +
+                        ' aria-label="Xem ' + (isV ? 'video' : 'ảnh') + ' ' + (i + 1) + ' trong ' + LIST.length + '">' +
+                        '<span class="galx-im"><img src="' + it.u + '=w900" alt="' + (isV ? 'Video' : 'Hình ảnh') + ' sinh hoạt Giáo Xứ Đại Hải" loading="lazy" decoding="async">' +
+                        (isV
+                            ? '<span class="galx-play" aria-hidden="true"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393"/></svg></span>' +
+                              (it.d ? '<span class="galx-dur">' + fmtDur(it.d) + '</span>' : '')
+                            : '') +
+                        '</span></button>' +
+                        '<figcaption class="galx-mono"><span class="galx-k">GX·' + pad2(i + 1) + '</span><span>' + (isV ? 'PHIM · ĐẠI HẢI' : 'ĐẠI HẢI') + '</span></figcaption>' +
+                        '</figure>';
+                }
+                strip.innerHTML = html;
+                if (total) total.textContent = (LIST.length - nVid) + ' ảnh' + (nVid ? ' · ' + nVid + ' video' : '');
+                if (prog) prog.textContent = '01 / ' + pad2(LIST.length);
+                var m = Math.min(LIST.length, 12), mh = '';
+                for (var k = 0; k < m; k++) mh += '<span class="galx-mq-it"><img src="' + LIST[k].u + '=w400" alt="" loading="lazy" decoding="async"></span>';
+                if (mqTrack) mqTrack.innerHTML = '<div class="galx-mq-half">' + mh + '</div><div class="galx-mq-half">' + mh + '</div>';
+                arm();
+            }
+            /* clip-path reveal as frames enter */
+            function arm() {
+                if (REDUCED || !('IntersectionObserver' in window)) {
+                    strip.querySelectorAll('.galx-fr').forEach(function (f) { f.classList.add('in'); });
+                    return;
+                }
+                var io = new IntersectionObserver(function (es) {
+                    es.forEach(function (e) {
+                        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+                    });
+                }, { root: strip, threshold: 0.15 });
+                strip.querySelectorAll('.galx-fr').forEach(function (f) { io.observe(f); });
+            }
+            build();
+            /* progress counter + arrows */
+            var pT;
+            strip.addEventListener('scroll', function () {
+                if (pT) return;
+                pT = setTimeout(function () {
+                    pT = null;
+                    var max = strip.scrollWidth - strip.clientWidth;
+                    var p = max > 0 ? strip.scrollLeft / max : 0;
+                    var cur = 1 + Math.round(p * (LIST.length - 1));
+                    if (prog) prog.textContent = pad2(cur) + ' / ' + pad2(LIST.length);
+                }, 80);
+            }, { passive: true });
+            function page(dir) {
+                strip.scrollBy({ left: dir * strip.clientWidth * 0.8, behavior: REDUCED ? 'auto' : 'smooth' });
+            }
+            if (prevB) prevB.addEventListener('click', function () { page(-1); });
+            if (nextB) nextB.addEventListener('click', function () { page(1); });
+            /* live refresh from the album (items carries video markers;
+               photos is the legacy string list) */
+            fetch('/api/photos').then(function (r) { if (!r.ok) throw 0; return r.json(); })
+                .then(function (j) {
+                    if (!j || j.source === 'fallback') return;
+                    var next = null;
+                    if (j.items && j.items.length > 2) {
+                        next = j.items.filter(function (p) { return p && URL_OK.test(p.u); });
+                    } else if (j.photos && j.photos.length > 2) {
+                        next = j.photos.filter(function (u) { return URL_OK.test(u); })
+                            .map(function (u) { return { u: u }; });
+                    }
+                    if (!next || next.length < 3) return;
+                    var sig = function (a) { return a.map(function (p) { return p.u + (p.v ? '!v' : ''); }).join('|'); };
+                    if (sig(next) === sig(ITEMS)) return;
+                    ITEMS = next;
+                    LIST = shuffle(ITEMS.slice());
+                    build();
+                    announce();
+                }).catch(function () {});
+            /* lightbox: photos in <img>, videos in <video> via /api/video */
+            var lb = document.createElement('div');
+            lb.className = 'glb';
+            lb.setAttribute('role', 'dialog');
+            lb.setAttribute('aria-label', 'Trình xem ảnh và video');
+            lb.innerHTML = '<img alt="Hình ảnh Giáo Xứ Đại Hải"><video controls playsinline preload="metadata" style="display:none"></video><button class="glb-x" aria-label="Đóng">&#10005;</button>';
+            document.body.appendChild(lb);
+            var lbImg = lb.querySelector('img');
+            var lbVid = lb.querySelector('video');
+            function stopVideo() {
+                if (!lbVid.getAttribute('src')) return;
+                lbVid.pause();
+                lbVid.removeAttribute('src');
+                lbVid.load();
+            }
+            function close() {
+                stopVideo();
+                lb.classList.remove('open');
+                lbImg.src = '';
+            }
+            /* if the stream fails, at least show the still frame */
+            lbVid.addEventListener('error', function () {
+                if (!lbVid.getAttribute('src')) return;
+                var poster = lbVid.poster;
+                stopVideo();
+                lbVid.style.display = 'none';
+                lbImg.style.display = '';
+                if (poster) lbImg.src = poster;
+            });
+            document.addEventListener('click', function (e) {
+                var t = e.target.closest ? e.target.closest('.galx-btn') : null;
+                if (t) {
+                    var vid = t.getAttribute('data-video');
+                    if (vid) {
+                        lbImg.style.display = 'none';
+                        lbImg.src = '';
+                        lbVid.style.display = '';
+                        lbVid.poster = t.getAttribute('data-poster') || '';
+                        lbVid.src = '/api/video?id=' + vid;
+                        lb.classList.add('open');
+                        lbVid.play().catch(function () {});
+                    } else {
+                        stopVideo();
+                        lbVid.style.display = 'none';
+                        lbImg.style.display = '';
+                        lbImg.src = t.getAttribute('data-full');
+                        lb.classList.add('open');
+                    }
+                    return;
+                }
+                if (e.target === lb || e.target.closest('.glb-x')) close();
+            });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+        })();
+
+        // ============================================
+        // Hoạt Động: dress the activity cards with real album photos
+        // (deterministic spread over the same auto-updating album list)
+        // ============================================
+        (function () {
+            function dress(list) {
+                var imgs = document.querySelectorAll('.activity-image');
+                if (!imgs.length || !list || list.length < 6) return;
+                var step = Math.max(1, Math.floor(list.length / imgs.length));
+                imgs.forEach(function (el, i) {
+                    var u = list[(2 + i * step) % list.length];
+                    el.style.backgroundImage = "url('" + u + "=w800')";
+                    el.classList.add('has-photo');
+                });
+            }
+            if (window.__gxPhotos) dress(window.__gxPhotos);
+            document.addEventListener('gx:photos', function (e) { dress(e.detail); });
+        })();
+
+        // ============================================
+        // Gentle reveal-on-scroll for cards and section headers
+        // ============================================
+        (function () {
+            if (!('IntersectionObserver' in window)) return;
+            var sels = '.section-header, .service-card, .news-card, .about-card, .activity-card, .gallery-item, .video-card, .priest-card, .event-card, .contact-card, .announce-card, .liturgy-accordion';
+            var els = document.querySelectorAll(sels);
+            var perParent = new Map();
+            els.forEach(function (el) {
+                var n = perParent.get(el.parentNode) || 0;
+                perParent.set(el.parentNode, n + 1);
+                el.classList.add('rv-auto');
+                el.style.setProperty('--rvi', Math.min(n, 5));
+            });
+            var io = new IntersectionObserver(function (es) {
+                es.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+            els.forEach(function (el) { io.observe(el); });
+        })();
+
+        // ============================================
+        // Lazy-load the Facebook page widget ONLY when scrolled near it, so the
+        // FB iframe can't steal focus and scroll the page down on load.
+        // ============================================
+        (function () {
+            var sec = document.getElementById('fb-cantho');
+            if (!sec) return;
+            var loaded = false;
+            function loadFB() {
+                if (loaded) return;
+                loaded = true;
+                var s = document.createElement('script');
+                s.async = true;
+                s.defer = true;
+                s.crossOrigin = 'anonymous';
+                s.src = 'https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v21.0';
+                document.body.appendChild(s);
+            }
+            if ('IntersectionObserver' in window) {
+                var io = new IntersectionObserver(function (entries) {
+                    if (entries.some(function (e) { return e.isIntersecting; })) {
+                        loadFB();
+                        io.disconnect();
+                    }
+                }, { rootMargin: '400px 0px' });
+                io.observe(sec);
+            } else {
+                window.addEventListener('scroll', function once() {
+                    loadFB();
+                    window.removeEventListener('scroll', once);
+                }, { passive: true });
+            }
+        })();
+    </script>
+    <!-- ================================================================
+         TẠM THỜI (đến hết 23/08/2026): chuyển tiếp mừng Tân Linh mục.
+         Khách vào trang chủ lần đầu trong phiên sẽ thấy thông báo mừng
+         và được chuyển sang khaihoan.giaoxudaihai.com sau 5 giây (bằng
+         script, không đụng DNS). Hết hạn thì khối này tự bất hoạt —
+         xóa cả khối từ đây đến "HẾT KHỐI TẠM THỜI" là dọn xong.
+         ================================================================ -->
+    <style>
+        .kh-fwd {
+            position: fixed;
+            inset: 0;
+            z-index: 1500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(6, 40, 37, 0.72);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .kh-fwd.show { opacity: 1; }
+        .kh-fwd-card {
+            max-width: 460px;
+            width: 100%;
+            background: linear-gradient(160deg, #0b3b37, #0f766e);
+            color: #f5f1e6;
+            border: 1px solid rgba(217, 180, 92, 0.35);
+            border-radius: 18px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+            padding: 34px 30px 30px;
+            text-align: center;
+        }
+        .kh-fwd-kicker {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #d9b45c;
+            margin-bottom: 12px;
+        }
+        .kh-fwd-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.45;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .kh-fwd-text {
+            font-size: 0.95rem;
+            color: rgba(245, 241, 230, 0.85);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .kh-fwd-count {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #d9b45c;
+            line-height: 1;
+            margin-bottom: 22px;
+            font-variant-numeric: tabular-nums;
+        }
+        .kh-fwd-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .kh-fwd-go, .kh-fwd-stay {
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 24px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .kh-fwd-go {
+            background: linear-gradient(135deg, #e9c46a, #d9b45c);
+            color: #123c38;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .kh-fwd-stay {
+            background: transparent;
+            color: rgba(245, 241, 230, 0.75);
+            border: 1px solid rgba(245, 241, 230, 0.35);
+        }
+        .kh-fwd-go:hover, .kh-fwd-stay:hover { transform: translateY(-2px); }
+    </style>
+    <script>
+        (function () {
+            var DEST = 'https://khaihoan.giaoxudaihai.com/';
+            var END = Date.parse('2026-08-24T00:00:00+07:00');
+            if (!isFinite(END) || Date.now() >= END) return;
+            try { if (sessionStorage.getItem('khFwdSeen') === '1') return; } catch (e) {}
+            function markSeen() {
+                try { sessionStorage.setItem('khFwdSeen', '1'); } catch (e) {}
+            }
+            var wrap = document.createElement('div');
+            wrap.className = 'kh-fwd';
+            wrap.setAttribute('role', 'dialog');
+            wrap.setAttribute('aria-modal', 'true');
+            wrap.setAttribute('aria-label', 'Mừng Tân Linh mục');
+            var card = document.createElement('div');
+            card.className = 'kh-fwd-card';
+            function el(cls, tag, text) {
+                var n = document.createElement(tag || 'div');
+                n.className = cls;
+                if (text) n.textContent = text;
+                card.appendChild(n);
+                return n;
+            }
+            el('kh-fwd-kicker', 'div', 'Giáo xứ Đại Hải hân hoan kính mừng');
+            el('kh-fwd-title', 'div', 'Thánh lễ Tạ ơn Tân Linh mục Giuse Nguyễn Khải Hoàn, O.P.');
+            el('kh-fwd-text', 'div',
+                'Mừng ngày hồng phúc của Cha Giuse — 9g00, thứ Hai, ngày 17.08.2026. ' +
+                'Kính mời cộng đoàn sang trang Hành Trình Ơn Gọi của Cha:');
+            var count = el('kh-fwd-count', 'div', '5');
+            var actions = el('kh-fwd-actions', 'div');
+            var go = document.createElement('a');
+            go.className = 'kh-fwd-go';
+            go.href = DEST;
+            go.textContent = 'Sang trang ngay';
+            var stay = document.createElement('button');
+            stay.className = 'kh-fwd-stay';
+            stay.type = 'button';
+            stay.textContent = 'Ở lại trang chủ';
+            actions.appendChild(go);
+            actions.appendChild(stay);
+            wrap.appendChild(card);
+            document.body.appendChild(wrap);
+            requestAnimationFrame(function () { wrap.classList.add('show'); });
+            var n = 5;
+            var timer = setInterval(function () {
+                n -= 1;
+                if (n <= 0) {
+                    clearInterval(timer);
+                    markSeen();
+                    window.location.href = DEST;
+                    return;
+                }
+                count.textContent = String(n);
+            }, 1000);
+            go.addEventListener('click', function () {
+                clearInterval(timer);
+                markSeen();
+            });
+            stay.addEventListener('click', function () {
+                clearInterval(timer);
+                markSeen();
+                wrap.classList.remove('show');
+                setTimeout(function () { wrap.remove(); }, 400);
+            });
+        })();
+    </script>
+    <!-- ================= HẾT KHỐI TẠM THỜI ================= -->
+</body>
+</html>
