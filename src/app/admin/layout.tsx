@@ -18,19 +18,28 @@ export default function AdminLayout({
             Dashboard
           </Link>
           <Link href="/admin/posts" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
-            Bài Viết
+            Thông Báo & Bài Viết
           </Link>
-          <Link href="/admin/settings" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
-            Cài Đặt
+          <Link href="/admin/services" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
+            Lịch Giờ Lễ
+          </Link>
+          <Link href="/admin/zones" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
+            Các Giáo Khu
+          </Link>
+          <Link href="/admin/organizations" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
+            Các Hội Đoàn
           </Link>
           <Link href="/admin/council" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
-            Ban Hành Giáo
+            Ban Thường Vụ HĐGX
           </Link>
           <Link href="/admin/priests" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
             Quý Cha
           </Link>
           <Link href="/admin/gallery" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
             Thư Viện Ảnh
+          </Link>
+          <Link href="/admin/settings" className="block px-4 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
+            Cài Đặt Chung
           </Link>
           <Link href="/" className="block px-4 py-2 rounded-md text-blue-600 hover:bg-blue-50 mt-8">
             ← Trở về trang chủ

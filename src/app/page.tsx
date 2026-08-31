@@ -429,6 +429,12 @@ export default async function Home() {
               <h2>Lịch Sử Giáo Xứ</h2>
               <p>Hành trình Đức Tin</p>
             </div>
+
+            {settings.history_text && (
+              <div style={{ maxWidth: '800px', margin: '0 auto 40px', color: '#4b5563', lineHeight: 1.8, fontSize: '16px', whiteSpace: 'pre-line', textAlign: 'center' }}>
+                {settings.history_text}
+              </div>
+            )}
             
             <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
               <div style={{ position: 'absolute', left: '20px', top: '0', bottom: '0', width: '2px', background: '#e5e7eb' }}></div>
@@ -522,7 +528,7 @@ export default async function Home() {
                   <div className="contact-icon" style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#ccfbf1', color: '#0f766e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', flexShrink: 0 }}><i className="bi bi-telephone-fill"></i></div>
                   <div>
                     <h3 style={{ fontSize: '18px', color: '#111827', marginBottom: '5px' }}>Điện thoại (VP Giáo Xứ)</h3>
-                    <p style={{ color: '#4b5563', fontSize: '15px' }}>0261.3.123.456 (Giờ hành chính)</p>
+                    <p style={{ color: '#4b5563', fontSize: '15px' }}>{settings.contact_phone || '0261.3.123.456 (Giờ hành chính)'}</p>
                   </div>
                 </div>
               </div>
