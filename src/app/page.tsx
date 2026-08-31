@@ -90,19 +90,34 @@ async function getDailyLiturgy() {
   }
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function Home() {
-  const settings = await getSettings();
-  const posts = await getPosts();
-  const services = await getServices();
-  const activities = await getActivities();
-  const priests = await getPriests();
-  const videos = await getVideos();
-  const zones = await getZones();
-  const organizations = await getOrganizations();
-  const galleryItems = await getGalleryItems();
-  const councilMembers = await getCouncilMembers();
+  const [
+    settings,
+    posts,
+    services,
+    activities,
+    priests,
+    videos,
+    zones,
+    organizations,
+    galleryItems,
+    councilMembers,
+    liturgy
+  ] = await Promise.all([
+    getSettings(),
+    getPosts(),
+    getServices(),
+    getActivities(),
+    getPriests(),
+    getVideos(),
+    getZones(),
+    getOrganizations(),
+    getGalleryItems(),
+    getCouncilMembers(),
+    getDailyLiturgy()
+  ]);
 
   const announcements = posts.filter(p => p.type === 'ANNOUNCEMENT');
 
@@ -111,8 +126,6 @@ export default async function Home() {
   try {
     newsData = JSON.parse(fs.readFileSync(path.join(publicDir, 'news.json'), 'utf8'));
   } catch (e) {}
-
-  const liturgy = await getDailyLiturgy();
 
   return (
     <>
