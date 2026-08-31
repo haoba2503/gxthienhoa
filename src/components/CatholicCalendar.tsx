@@ -145,33 +145,47 @@ export default function CatholicCalendar() {
   const weekDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
   return (
-    <div style={{ background: 'white', padding: '30px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+    <div className="calendar-wrapper" style={{ background: 'white', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+      <style dangerouslySetInnerHTML={{__html: `
+        .calendar-wrapper { padding: 30px; }
+        .calendar-scroll-container { overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; }
+        .calendar-grid-header, .calendar-grid-body { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; min-width: 600px; }
+        
+        @media (max-width: 768px) {
+          .calendar-wrapper { padding: 15px; }
+          .calendar-btn-nav { padding: 5px 10px !important; font-size: 13px !important; }
+          .calendar-month-title { font-size: 18px !important; }
+        }
+      `}} />
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button onClick={handlePrev} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb', cursor: 'pointer' }}>&laquo; Tháng Trước</button>
+        <button className="calendar-btn-nav" onClick={handlePrev} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb', cursor: 'pointer' }}>&laquo; Tháng Trước</button>
         <div style={{ textAlign: 'center' }}>
-          <h3 style={{ fontSize: '22px', color: '#0f766e', margin: 0, fontWeight: 'bold' }}>Tháng {month} / {year}</h3>
+          <h3 className="calendar-month-title" style={{ fontSize: '22px', color: '#0f766e', margin: 0, fontWeight: 'bold' }}>Tháng {month} / {year}</h3>
           <button onClick={handleToday} style={{ border: 'none', background: 'transparent', color: '#6b7280', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>Về Tháng Hiện Tại</button>
         </div>
-        <button onClick={handleNext} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb', cursor: 'pointer' }}>Tháng Sau &raquo;</button>
+        <button className="calendar-btn-nav" onClick={handleNext} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb', cursor: 'pointer' }}>Tháng Sau &raquo;</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', marginBottom: '10px' }}>
-        {weekDays.map(d => (
-          <div key={d} style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '15px', color: d === 'CN' ? '#ef4444' : '#4b5563' }}>{d}</div>
-        ))}
+      <div className="calendar-scroll-container">
+        <div className="calendar-grid-header" style={{ marginBottom: '10px' }}>
+          {weekDays.map(d => (
+            <div key={d} style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '15px', color: d === 'CN' ? '#ef4444' : '#4b5563' }}>{d}</div>
+          ))}
+        </div>
+        
+        {loading ? (
+          <div style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', minWidth: '600px' }}>
+            <i className="bi bi-arrow-repeat" style={{ fontSize: '30px', animation: 'spin 1s linear infinite' }}></i>
+            <style dangerouslySetInnerHTML={{__html: `@keyframes spin { 100% { transform: rotate(360deg); } }`}} />
+          </div>
+        ) : (
+          <div className="calendar-grid-body">
+            {blanks}
+            {calendarDays}
+          </div>
+        )}
       </div>
-      
-      {loading ? (
-        <div style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
-          <i className="bi bi-arrow-repeat" style={{ fontSize: '30px', animation: 'spin 1s linear infinite' }}></i>
-          <style dangerouslySetInnerHTML={{__html: `@keyframes spin { 100% { transform: rotate(360deg); } }`}} />
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px' }}>
-          {blanks}
-          {calendarDays}
-        </div>
-      )}
     </div>
   );
 }
