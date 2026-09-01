@@ -24,7 +24,9 @@ async function getDailyLiturgy() {
     fallback = JSON.parse(fs.readFileSync(path.join(publicDir, 'liturgy.json'), 'utf8'));
   } catch(e) {}
 
-  const d = new Date();
+  // Force Vietnam timezone since Vercel servers use UTC
+  const vnTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" });
+  const d = new Date(vnTimeStr);
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
