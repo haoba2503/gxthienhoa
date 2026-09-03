@@ -109,6 +109,60 @@ async function getDailyLiturgy() {
   }
 }
 
+async function getCatholicNews() {
+  const publicDir = path.join(process.cwd(), 'public');
+  let fallback = { items: [] };
+  try {
+    fallback = JSON.parse(fs.readFileSync(path.join(publicDir, 'news.json'), 'utf8'));
+  } catch(e) {}
+
+  try {
+    const res = await fetch("https://www.vaticannews.va/vi.rss.xml", { 
+      next: { revalidate: 3600 },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/rss+xml, application/xml, text/xml',
+      }
+    });
+    
+    if (!res.ok) {
+      console.error("CatholicNews RSS fetch failed with status:", res.status);
+      return fallback;
+    }
+    
+    const xml = await res.text();
+    const $ = cheerio.load(xml, { xmlMode: true });
+    
+    const items: any[] = [];
+    $('item').slice(0, 6).each((_, el) => {
+      const title = $(el).find('title').text().trim().replace(/^<!\[CDATA\[|\]\]>$/g, '').trim();
+      const link = $(el).find('link').text().trim();
+      const pubDate = $(el).find('pubDate').text().trim();
+      
+      let dateStr = '';
+      if (pubDate) {
+        const d = new Date(pubDate);
+        if (!isNaN(d.getTime())) {
+          dateStr = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+      }
+
+      items.push({
+        title,
+        url: link,
+        date: dateStr,
+        source: 'Vatican News'
+      });
+    });
+    
+    if (items.length > 0) return { items };
+    return fallback;
+  } catch (e) {
+    console.error("Catholic news fetch error:", e);
+    return fallback;
+  }
+}
+
 export const revalidate = 60;
 
 export default async function Home() {
@@ -123,7 +177,8 @@ export default async function Home() {
     organizations,
     galleryItems,
     councilMembers,
-    liturgy
+    liturgy,
+    newsData
   ] = await Promise.all([
     getSettings(),
     getPosts(),
@@ -135,16 +190,11 @@ export default async function Home() {
     getOrganizations(),
     getGalleryItems(),
     getCouncilMembers(),
-    getDailyLiturgy()
+    getDailyLiturgy(),
+    getCatholicNews()
   ]);
 
   const announcements = posts.filter(p => p.type === 'ANNOUNCEMENT');
-
-  const publicDir = path.join(process.cwd(), 'public');
-  let newsData: any = null;
-  try {
-    newsData = JSON.parse(fs.readFileSync(path.join(publicDir, 'news.json'), 'utf8'));
-  } catch (e) {}
 
   return (
     <>
