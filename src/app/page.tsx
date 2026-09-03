@@ -24,17 +24,34 @@ async function getDailyLiturgy() {
     fallback = JSON.parse(fs.readFileSync(path.join(publicDir, 'liturgy.json'), 'utf8'));
   } catch(e) {}
 
-  // Force Vietnam timezone since Vercel servers use UTC
-  const vnTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" });
-  const d = new Date(vnTimeStr);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
+  // Extract Vietnam date parts safely
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  });
+  const parts = formatter.formatToParts(new Date());
+  let yyyy = '', mm = '', dd = '';
+  parts.forEach(p => {
+    if (p.type === 'year') yyyy = p.value;
+    if (p.type === 'month') mm = p.value;
+    if (p.type === 'day') dd = p.value;
+  });
+
   const fullUrl = `https://www.vaticannews.va/vi/loi-chua-hang-ngay/${yyyy}/${mm}/${dd}.html`;
   
   try {
-    const res = await fetch(fullUrl, { next: { revalidate: 3600 } });
-    if (!res.ok) return fallback;
+    const res = await fetch(fullUrl, { 
+      next: { revalidate: 3600 },
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
+      }
+    });
+    if (!res.ok) {
+      console.error("VaticanNews fetch failed with status:", res.status);
+      return fallback;
+    }
     const html = await res.text();
     const $ = cheerio.load(html);
     
