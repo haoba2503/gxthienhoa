@@ -41,7 +41,7 @@ async function getDailyLiturgy() {
   
   try {
     const res = await fetch(fullUrl, { 
-      next: { revalidate: 3600 },
+      next: { revalidate: 10800 },
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -118,7 +118,7 @@ async function getCatholicNews() {
 
   try {
     const res = await fetch("https://www.vaticannews.va/vi.rss.xml", { 
-      next: { revalidate: 3600 },
+      next: { revalidate: 10800 },
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/rss+xml, application/xml, text/xml',
